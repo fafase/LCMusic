@@ -58,12 +58,6 @@
     <Reference Include="UnityEngine.Networking">
       <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Networking">
-      <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEditor">
       <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
     </Reference>
@@ -79,6 +73,7 @@
     <Compile Include="Assets\Scripts\EmptyString.cs" />
     <Compile Include="Assets\Scripts\FretController.cs" />
     <Compile Include="Assets\Scripts\FrontScene\FrontUIAction.cs" />
+    <Compile Include="Assets\Scripts\FrontScene\SequenceButtonCreator.cs" />
     <Compile Include="Assets\Scripts\JSONData.cs" />
     <Compile Include="Assets\Scripts\PickController.cs" />
     <Compile Include="Assets\Scripts\PlayController.cs" />

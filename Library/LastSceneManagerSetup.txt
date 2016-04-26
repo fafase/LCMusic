@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scene/FrontScene.unity
+- path: Assets/Scene/SequenceFrontScene.unity
   isLoaded: 1
   isActive: 1

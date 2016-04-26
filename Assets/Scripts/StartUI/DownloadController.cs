@@ -30,9 +30,10 @@ public class DownloadController : MonoBehaviour
             yield break;
         }
 
-        if (string.IsNullOrEmpty(www.text) == true)
+        if (string.IsNullOrEmpty(www.text) == false)
         {
             System.IO.File.WriteAllText(AppController.Instance.DataPath, www.text);
+            PlayerPrefs.SetString(AppController.JsonData, www.text);
         }
         yield return null;
         OnDownloadComplete(new DownloadCompleteArgs(www.text));

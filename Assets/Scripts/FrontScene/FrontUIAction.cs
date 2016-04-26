@@ -8,4 +8,6 @@ public class FrontUIAction : MonoBehaviour
     {
         SceneManager.LoadScene(scene);
     }
+
+    public void ShowSequence() { }
 }
