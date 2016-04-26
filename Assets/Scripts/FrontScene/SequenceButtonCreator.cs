@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
+using System;
 
 public class SequenceButtonCreator : MonoBehaviour {
 
@@ -32,9 +36,24 @@ public class SequenceButtonCreator : MonoBehaviour {
 
         rt.anchoredPosition = anchoredPos;
         rt.sizeDelta = sizeDelta;
-        foreach (Sequence sequence in rootObject.sequences)
+        CreateButtons(rootObject.sequences as IEnumerable<Sequence>);
+
+        
+    }
+
+    private void CreateButtons(IEnumerable <Sequence> sequences)
+    {
+        FrontUIAction ftUIAction = FindObjectOfType<FrontUIAction>();
+        if (ftUIAction == null) { return; }
+
+        foreach (Sequence sequence in sequences)
         {
             GameObject obj = (GameObject)Instantiate(this.prefabBtn);
+            Button btn = obj.GetComponent<Button>();
+            if (btn == null) { continue; }
+            Sequence currentSequence = sequence;
+            
+
             obj.name = sequence.name;
             obj.transform.SetParent(this.rt, false);
             Text text = obj.GetComponentInChildren<Text>();
@@ -42,6 +61,17 @@ public class SequenceButtonCreator : MonoBehaviour {
             if (sequence.chords == null || sequence.chords.Length == 0)
             {
                 newName = newName + " (Not available)";
+            }
+            else
+            {
+                btn.onClick.AddListener(() =>
+                {
+                    BinaryFormatter bf = new BinaryFormatter();
+                    MemoryStream ms = new MemoryStream();
+                    bf.Serialize(ms, currentSequence);
+                    PlayerPrefs.SetString(AppController.CurrentData, Convert.ToBase64String(ms.GetBuffer()));
+                    ftUIAction.LoadScene("SequenceScene");
+                });
             }
             text.text = newName;
         }
