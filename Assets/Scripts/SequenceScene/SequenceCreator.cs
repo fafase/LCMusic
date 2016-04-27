@@ -10,7 +10,7 @@ public class SequenceCreator : MonoBehaviour
 {
     [SerializeField]
     private Text sequenceName = null;
-    public GameObject [] chords;
+    public GameObject [] chordButton;
 	
 	private void Start ()
     {
@@ -31,8 +31,7 @@ public class SequenceCreator : MonoBehaviour
         int i = 0;
         foreach (Chord chord in chords)
         {
-            Text text = this.chords[i].GetComponentInChildren<Text>();
-            text.text = chord.name;
+            this.chordButton[i].GetComponent<ChordCreator>().Init(chord);
             i++;
         }
     }

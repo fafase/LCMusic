@@ -8,7 +8,9 @@ public class StringController : MonoBehaviour
 {
 	private AudioSource audioSource = null;
     [SerializeField] private EmptyString emptyString = null;
-	public uint currentFret = 0;
+    public Image[] fretButton;
+
+	private uint currentFret = 0;
 
     private void Awake()
 	{
@@ -41,6 +43,20 @@ public class StringController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             PlayCurrentFret();
+        }
+    }
+
+    public void SetButtonFret(int i)
+    {
+        ResetButtonFret();
+        this.fretButton[i - 1].color = Color.gray;
+    }
+
+    public void ResetButtonFret()
+    {
+        foreach (Image image in this.fretButton)
+        {
+            image.color = Color.white;
         }
     }
 }

@@ -77,6 +77,8 @@
     <Compile Include="Assets\Scripts\JSONData.cs" />
     <Compile Include="Assets\Scripts\PickController.cs" />
     <Compile Include="Assets\Scripts\PlayController.cs" />
+    <Compile Include="Assets\Scripts\SequenceScene\ChordController.cs" />
+    <Compile Include="Assets\Scripts\SequenceScene\ChordCreator.cs" />
     <Compile Include="Assets\Scripts\SequenceScene\SequenceCreator.cs" />
     <Compile Include="Assets\Scripts\SoundController.cs" />
     <Compile Include="Assets\Scripts\StartUI\DownloadController.cs" />

@@ -40,6 +40,13 @@ public class EmptyString : MonoBehaviour
 		this.stringText.text = this.states [index];
 	}
 
+    public void SetState(int newIndex)
+    {
+        if (newIndex > 1 || newIndex < 0) { return; }
+        index = newIndex;
+        this.stringText.text = this.states[index];
+    }
+
 	public bool IsStringSetOn()
 	{
 		return this.index == 1;
