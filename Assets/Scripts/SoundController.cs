@@ -3,10 +3,10 @@ using System.Collections;
 
 public class SoundController : MonoBehaviour 
 {
-	public void TestAudio(GameObject obj)
-	{
-		Debug.Log ("[LCMusic] pick " + obj.name);
-	}
+    public void PlayPianoKey(PianoKeyController pianoKey)
+    {
+        AudioManager.Instance.PlayAudio(pianoKey.ClipName, 1.0f, pianoKey.Pitch);
+    }
 }
 
 public class LCAudioPlayer
