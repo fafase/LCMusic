@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System;
+using LCHelper;
 
 public class SequenceButtonCreator : MonoBehaviour {
 
@@ -12,21 +13,24 @@ public class SequenceButtonCreator : MonoBehaviour {
     private RectTransform rt = null;
     [SerializeField]
     private GameObject prefabBtn;
+    private float size = 80f;
 
     private void Awake()
     {
         string json = PlayerPrefs.GetString(AppController.JsonData, null);
         if (json == null) { return; }
-         RootObject rootObject = JsonUtility.FromJson<RootObject>(json);
+        RootObject rootObject = JsonUtility.FromJson<RootObject>(json);
 
-        if (rootObject == null || rootObject.sequences == null)
-        {
-            return;
-        }
-        
-        int btnLength = rootObject.sequences.Length;
-        if (btnLength == 0) {  return; }
-        float dimension = 83f * btnLength;
+        if (rootObject == null || rootObject.sequences == null) {  return;  }
+
+        SetContainerDimension(rootObject.sequences.Length);
+        CreateButtons(rootObject.sequences );   
+    }
+
+    private void SetContainerDimension(int btnLength)
+    {
+        if (btnLength == 0) { return; }
+        float dimension = this.size * btnLength;
 
         Vector2 anchoredPos = rt.anchoredPosition;
         Vector2 sizeDelta = rt.sizeDelta;
@@ -36,9 +40,6 @@ public class SequenceButtonCreator : MonoBehaviour {
 
         rt.anchoredPosition = anchoredPos;
         rt.sizeDelta = sizeDelta;
-        CreateButtons(rootObject.sequences as IEnumerable<Sequence>);
-
-        
     }
 
     private void CreateButtons(IEnumerable <Sequence> sequences)
@@ -66,10 +67,7 @@ public class SequenceButtonCreator : MonoBehaviour {
             {
                 btn.onClick.AddListener(() =>
                 {
-                    BinaryFormatter bf = new BinaryFormatter();
-                    MemoryStream ms = new MemoryStream();
-                    bf.Serialize(ms, currentSequence);
-                    PlayerPrefs.SetString(AppController.CurrentData, Convert.ToBase64String(ms.GetBuffer()));
+                    Save.SerializeInPlayerPrefs(AppController.CurrentData, currentSequence);
                     ftUIAction.LoadScene("SequenceScene");
                 });
             }

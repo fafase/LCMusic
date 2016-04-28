@@ -76,13 +76,13 @@
     <Compile Include="Assets\Scripts\FrontScene\FrontUIAction.cs" />
     <Compile Include="Assets\Scripts\FrontScene\SequenceButtonCreator.cs" />
     <Compile Include="Assets\Scripts\JSONData.cs" />
+    <Compile Include="Assets\Scripts\LCAudioPlayer.cs" />
     <Compile Include="Assets\Scripts\Piano\PianoKeyController.cs" />
     <Compile Include="Assets\Scripts\PickController.cs" />
     <Compile Include="Assets\Scripts\PlayController.cs" />
     <Compile Include="Assets\Scripts\SequenceScene\ChordController.cs" />
     <Compile Include="Assets\Scripts\SequenceScene\ChordCreator.cs" />
     <Compile Include="Assets\Scripts\SequenceScene\SequenceCreator.cs" />
-    <Compile Include="Assets\Scripts\SoundController.cs" />
     <Compile Include="Assets\Scripts\StartUI\DownloadController.cs" />
     <Compile Include="Assets\Scripts\StartUI\FrontPageController.cs" />
     <Compile Include="Assets\Scripts\StartUI\Loader.cs" />

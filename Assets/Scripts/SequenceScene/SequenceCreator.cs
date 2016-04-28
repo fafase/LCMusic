@@ -1,10 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
-using System;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using LCHelper;
 
 public class SequenceCreator : MonoBehaviour
 {
@@ -15,12 +12,8 @@ public class SequenceCreator : MonoBehaviour
 	private void Start ()
     {
         if (this.sequenceName == null) { Debug.LogError("[LCMusic] Missing text"); }
+        Sequence sequence = Save.DeserializeFromPlayerPrefs<Sequence>(AppController.CurrentData);
 
-        string str = PlayerPrefs.GetString(AppController.CurrentData, null);
-        if (str == null) { return; }
-        BinaryFormatter bf = new BinaryFormatter();
-        MemoryStream ms = new MemoryStream(Convert.FromBase64String(str));
-        Sequence sequence =  bf.Deserialize(ms) as Sequence;
         if (sequence == null) { return; }
         this.sequenceName.text = sequence.name;
         SetChordNames(sequence.chords as IEnumerable<Chord>);

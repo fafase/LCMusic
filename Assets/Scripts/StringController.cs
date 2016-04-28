@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+using LCHelper;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(AudioSource))]
