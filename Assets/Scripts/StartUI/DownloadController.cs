@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using LCHelper;
 
 public class DownloadController : MonoBehaviour
 {
@@ -32,8 +33,8 @@ public class DownloadController : MonoBehaviour
 
         if (string.IsNullOrEmpty(www.text) == false)
         {
-            System.IO.File.WriteAllText(AppController.Instance.DataPath, www.text);
-            PlayerPrefs.SetString(AppController.JsonData, www.text);
+            System.IO.File.WriteAllText(ConstString.DataPath, www.text);
+            PlayerPrefs.SetString(ConstString.JsonData, www.text);
         }
         yield return null;
         OnDownloadComplete(new DownloadCompleteArgs(www.text));

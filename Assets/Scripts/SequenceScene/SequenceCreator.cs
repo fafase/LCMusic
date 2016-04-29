@@ -12,7 +12,7 @@ public class SequenceCreator : MonoBehaviour
 	private void Start ()
     {
         if (this.sequenceName == null) { Debug.LogError("[LCMusic] Missing text"); }
-        Sequence sequence = Save.DeserializeFromPlayerPrefs<Sequence>(AppController.CurrentData);
+        Sequence sequence = Save.DeserializeFromPlayerPrefs<Sequence>(ConstString.CurrentData);
 
         if (sequence == null) { return; }
         this.sequenceName.text = sequence.name;

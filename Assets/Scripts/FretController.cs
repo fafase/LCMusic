@@ -1,44 +1,73 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System;
 using UnityEngine.EventSystems;
 
-public class FretController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class FretController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler 
 {
-	private StringController stringCtrl = null;
-	private uint fret = 0;
+    private FretContainer fretContainer = null;
+
 	private void Start()
 	{
-		this.stringCtrl = this.transform.parent.GetComponent<StringController> ();
-		if (this.stringCtrl == null) 
-		{
-			Debug.LogError ("[LCMusic] Missing string controller in parent");
-			return;
-		}
-		this.fret = RetrieveFretNumberInName (); 
+        this.fretContainer = new FretContainer( this.transform.parent.GetComponent<IStringControllerCons>() , 
+            this.gameObject.name);
 	}
+
+    private void OnDestroy()
+    {
+        this.fretContainer = null;
+    }
 
 	#region IPointerExitHandler implementation
-
 	public void OnPointerExit (PointerEventData eventData)
 	{
-		this.stringCtrl.SetCurrentFret (0);
+		this.fretContainer.ResetCurrentFret ();
 	}
-
 	#endregion
 
 	#region IPointerEnterHandler implementation
 	public void OnPointerEnter (PointerEventData eventData)
 	{
-		this.stringCtrl.SetCurrentFret (this.fret);
+		this.fretContainer.SetCurrentFret ();
 	}
 	#endregion
+}
 
-	private uint RetrieveFretNumberInName()
-	{
-		string name = this.gameObject.name;
-		char lastChar = name [name.Length - 2];
-		uint result = uint.Parse(lastChar.ToString()) + 1;
-		return result;
-	}
-	public uint Fret{ get {  return this.fret; }  }
+[Serializable]
+public class FretContainer : IDisposable
+{
+    private IStringControllerCons stringCtrl = null;
+    private uint fret = 0;
+    public uint Fret { get { return this.fret; } }
+
+    public FretContainer( IStringControllerCons newStringCtrl, string name)
+    {
+        if (newStringCtrl == null)
+        {
+            Debug.LogError("[LCMusic] Missing string controller in parent");
+            return;
+        }
+        this.stringCtrl = newStringCtrl;
+        this.fret = RetrieveFretNumberInName(name);
+    }
+
+    private uint RetrieveFretNumberInName(string name)
+    {
+        char lastChar = name[name.Length - 2];
+        uint result = uint.Parse(lastChar.ToString()) + 1;
+        return result;
+    }
+
+    public void SetCurrentFret()
+    {
+        this.stringCtrl.SetCurrentFret(this.fret);
+    }
+    public void ResetCurrentFret()
+    {
+        this.stringCtrl.SetCurrentFret(0);
+    }
+        
+    public void Dispose()
+    {
+        this.stringCtrl = null;
+    }
 }

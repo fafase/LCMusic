@@ -2,7 +2,12 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 
-public class FrontUIAction : MonoBehaviour
+public interface IUIAction
+{
+    void LoadScene(string scene);
+}
+
+public class FrontUIAction : MonoBehaviour , IUIAction
 {
     public void LoadScene(string scene)
     {

@@ -9,12 +9,6 @@ public sealed class AppController : MonoBehaviour
     private static AppController instance = null;
     public static AppController Instance { get { return instance; } }
 
-    [SerializeField] private RootObject rootObject = null;
-    public RootObject JsonObject { get { return this.rootObject; } }
-
-    public string DataPath { get { return System.IO.Path.Combine(Application.persistentDataPath, "data.json"); } }
-    public const string JsonData = "jsonData";
-    public const string CurrentData = "currentData";
     private void Awake()
     {
         if (instance == null)

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Image))]
 public class Loader : MonoBehaviour
 {
-    [SerializeField] private Image image = null;
+    private Image image = null;
     private float speed = 1f;
 
     private void Awake()

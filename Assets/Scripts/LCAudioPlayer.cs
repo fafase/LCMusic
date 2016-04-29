@@ -1,10 +1,18 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System;
 namespace LCHelper
 {
+    public static class ConstString
+    {
+        public const string JsonData = "jsonData";
+        public const string CurrentData = "currentData";
+
+        public static string DataPath { get { return System.IO.Path.Combine(Application.persistentDataPath, "data.json"); } }
+
+    }
+
     public static class LCAudioPlayer
     {
         public static void PlaySound(AudioSource audioSource, float pitch)
@@ -30,7 +38,7 @@ namespace LCHelper
         }
         public static T DeserializeFromPlayerPrefs<T>(string key) where T : class
         {
-            string str = PlayerPrefs.GetString(AppController.CurrentData, null);
+            string str = PlayerPrefs.GetString(ConstString.CurrentData, null);
             if (str == null) { return null; }
             BinaryFormatter bf = new BinaryFormatter();
             MemoryStream ms = new MemoryStream(Convert.FromBase64String(str));
