@@ -12,14 +12,14 @@ public class SequenceCreator : MonoBehaviour
 	private void Start ()
     {
         if (this.sequenceName == null) { Debug.LogError("[LCMusic] Missing text"); }
-        Sequence sequence = Save.DeserializeFromPlayerPrefs<Sequence>(ConstString.CurrentData);
+        Lesson sequence = Save.DeserializeFromPlayerPrefs<Lesson>(ConstString.CurrentData);
 
         if (sequence == null) { return; }
         this.sequenceName.text = sequence.name;
-        SetChordNames(sequence.chords as IEnumerable<Chord>);
+       // SetChordNames(sequence.chords as IEnumerable<Chord>);
 	}
 
-    private void SetChordNames(IEnumerable<Chord>chords)
+    /*private void SetChordNames(IEnumerable<Chord>chords)
     {
         int i = 0;
         foreach (Chord chord in chords)
@@ -27,5 +27,5 @@ public class SequenceCreator : MonoBehaviour
             this.chordButton[i].GetComponent<ChordCreator>().Init(chord);
             i++;
         }
-    }
+    }*/
 }

@@ -1,43 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
-[Serializable]
-public class Chord : IDisposable
-{
-    public string name = null;
-    public int[] strings = null;
 
-    public void Dispose()
-    {
-        this.name = null;
-        this.strings = null;
-    }
-}
-[Serializable]
-public class Sequence :IDisposable
-{
-    public string name = null;
-    public Chord [] chords = null;
-
-    public void Dispose()
-    {
-        this.name = null;
-        for (int i = 0; i < this.chords.Length; i++)
-        {
-            this.chords[i] = null;
-        }
-        this.chords = null;
-    }
-}
 [Serializable]
 public class RootObject : IDisposable
 {
-    public Sequence[] sequences = null;
+	public Lesson [] lesson = null;
+	public RootObject()
+	{
+		
+	}
 
-    public void Dispose()
-    {
-        for (int i = 0; i < this.sequences.Length; i++)
-        {
-            this.sequences[i] = null;
-        }
-    }
+	public void Dispose()
+	{
+		foreach (Lesson lesson in this.lesson) {
+			lesson.Clean ();
+		}
+		this.lesson = null;
+	}
 }
+
+[Serializable]
+public class Lesson
+{
+	public string name = null;
+	public bool available = false;
+	public Rhythm [] rhythm = null;
+
+	public Lesson (){}
+
+	public void Clean()
+	{
+		this.name = null;
+		foreach (Rhythm r in this.rhythm) {
+			r.Clean ();
+		}
+	}
+}
+
+[Serializable]
+public class Rhythm
+{
+	public float [] bpms = null;
+
+	public Rhythm() { }
+
+	public void Clean()
+	{
+		this.bpms = null;
+	}
+}
+

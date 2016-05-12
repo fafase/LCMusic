@@ -35,6 +35,7 @@ public class DownloadController : MonoBehaviour
         {
             System.IO.File.WriteAllText(ConstString.DataPath, www.text);
             PlayerPrefs.SetString(ConstString.JsonData, www.text);
+			Debug.Log (www.text);
         }
         yield return null;
         OnDownloadComplete(new DownloadCompleteArgs(www.text));

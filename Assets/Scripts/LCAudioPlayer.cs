@@ -36,9 +36,9 @@ namespace LCHelper
             bf.Serialize(ms, obj);
             PlayerPrefs.SetString(key, Convert.ToBase64String(ms.GetBuffer()));
         }
-        public static T DeserializeFromPlayerPrefs<T>(string key) where T : class
+		public static T DeserializeFromPlayerPrefs<T>(string key) where T : class
         {
-            string str = PlayerPrefs.GetString(ConstString.CurrentData, null);
+            string str = PlayerPrefs.GetString(key, null);
             if (str == null) { return null; }
             BinaryFormatter bf = new BinaryFormatter();
             MemoryStream ms = new MemoryStream(Convert.FromBase64String(str));

@@ -21,7 +21,7 @@ public class ChordController : MonoBehaviour
 
     public void SetChord(ChordCreator creator)
     {
-        IEnumerable<int> strings = creator.Strings;
+       /* IEnumerable<int> strings = creator.Strings;
         int k = 0;
         foreach (int i in strings)
         {
@@ -41,7 +41,7 @@ public class ChordController : MonoBehaviour
                     break;
             }
             k++;
-        }
+        }*/
         // Get Each string and pass the value
     }
 }

@@ -1,13 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-
-public class SoundController : MonoBehaviour 
-{
-    public void PlayPianoKey(PianoKeyController pianoKey)
-    {
-        AudioManager.Instance.PlayAudio(pianoKey.ClipName, 1.0f, pianoKey.Pitch);
-    }
-}
 
 public class LCAudioPlayer
 {

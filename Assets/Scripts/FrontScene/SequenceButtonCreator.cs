@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using LCHelper;
 using System;
+using System.Collections.Generic;
 
 public interface ISequenceBtnCreator
 {
@@ -16,7 +17,7 @@ public class SequenceButtonCreator : MonoBehaviour, ISequenceBtnCreator
     [SerializeField]
     private GameObject prefabBtn;
     public GameObject PrefabBtn { get { return this.prefabBtn; } }
-    public float size = 80f;
+    public float size = 100f;
     public float Size { get { return this.size; } }
 
     private SequenceBtnCreatorHelper sequenceBtnCreator = null;
@@ -49,7 +50,11 @@ public class SequenceBtnCreatorHelper : IDisposable
     {
         this.sequence = sequence;
         string json = PlayerPrefs.GetString(ConstString.JsonData, null);
-        if (json == null) { return; }
+		Debug.Log (json);
+        if (json == null) 
+		{
+			throw new NullReferenceException ("Missing json file");		 
+		}
         this.rootObject = JsonUtility.FromJson<RootObject>(json);
     }
 
@@ -65,8 +70,8 @@ public class SequenceBtnCreatorHelper : IDisposable
 
     private Vector2 SetDimension(  Vector2 originalSize, int polarity)
     {
-        if (this.rootObject == null || this.rootObject.sequences == null) { return originalSize; }
-        int btnLength = this.rootObject.sequences.Length;
+        if (this.rootObject == null || this.rootObject.lesson == null) { return originalSize; }
+		int btnLength = this.rootObject.lesson.Length;
         if (btnLength == 0) { return originalSize; }
         float dimension = this.sequence.Size * btnLength;
         Vector2 size = originalSize;
@@ -76,19 +81,19 @@ public class SequenceBtnCreatorHelper : IDisposable
 
     public void CreateButtons(IUIAction uiAction, RectTransform rt)
     {
-        Sequence[] sequences = this.rootObject.sequences;
-        foreach (Sequence sequence in sequences)
+		IEnumerable<Lesson> lessons = this.rootObject.lesson as IEnumerable<Lesson>;
+        foreach (Lesson lesson in lessons)
         {
             GameObject obj = (GameObject)UnityEngine.Object.Instantiate(this.sequence.PrefabBtn);
             Button btn = obj.GetComponent<Button>();
             if (btn == null) { continue; }
-            Sequence currentSequence = sequence;
+            Lesson currentLesson = lesson;
 
-            obj.name = sequence.name;
+			obj.name = currentLesson.name;
             obj.transform.SetParent(rt, false);
             Text text = obj.GetComponentInChildren<Text>();
-            string newName = sequence.name;
-            if (sequence.chords == null || sequence.chords.Length == 0)
+			string newName = currentLesson.name;
+			if (currentLesson.available == false )
             {
                 newName = newName + " (Not available)";
             }
@@ -96,8 +101,8 @@ public class SequenceBtnCreatorHelper : IDisposable
             {
                 btn.onClick.AddListener(() =>
                 {
-                    Save.SerializeInPlayerPrefs(ConstString.CurrentData, currentSequence);
-                    uiAction.LoadScene("SequenceScene");
+					Save.SerializeInPlayerPrefs(ConstString.CurrentData, currentLesson);
+					uiAction.LoadScene("ChooseExercises");
                 });
             }
             text.text = newName;
