@@ -41,12 +41,12 @@ public class BeatCounterContainer
 		this.beatCounter = beatCounter;	
 	}
 
-	public float SetCurrentCounter(float deltaTime)
+	public float UpdateCurrentCounter(float deltaTime)
 	{
 		this.currentCounter += deltaTime;
-		if(this.currentCounter >= this.beatCounter.BarLength)
+		if(this.currentCounter >= GetPeriodBarInSec())
 		{
-			this.currentCounter -= this.beatCounter.BarLength;
+			this.currentCounter -= GetPeriodBarInSec();
 		}
 		return this.currentCounter;
 	}
@@ -56,7 +56,7 @@ public class BeatCounterContainer
 		this.currentCounter = 0.0f;
 	}
 
-	public float GetPeriodBar()
+	public float GetPeriodBarInSec()
 	{
 		float periodBar = 60f / this.beatCounter.Bpm * this.beatCounter.BarLength;
 		return periodBar;

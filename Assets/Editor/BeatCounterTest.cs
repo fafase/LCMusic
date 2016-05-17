@@ -26,51 +26,67 @@ public class BeatCounterTest
     [Test]
     public void BeatCounterAddTime()
     {
-		float result = this.beatCounter.SetCurrentCounter(2.0f);
+		float result = this.beatCounter.UpdateCurrentCounter(2.0f);
 		Assert.AreEqual(2.0f, result);
     }
 
 	[Test]
 	public void BeatCounterResetTimeAfterBarLength()
 	{
-		this.beatCounter.SetCurrentCounter(3.0f);
-		float result = this.beatCounter.SetCurrentCounter(1.5f);
+		this.beatCounter.UpdateCurrentCounter(3.0f);
+		float result = this.beatCounter.UpdateCurrentCounter(1.5f);
 		Assert.AreEqual(0.5f, result);
 	}
 
 	[Test]
-	public void BeatCounterLoopTestA()
+	public void BeatCounterLoopTestBpm60()
 	{
+		this.iBeatCounter.Bpm.Returns(60f);
 		for(int i = 0; i < 10; i++)
 		{
-			this.beatCounter.SetCurrentCounter(0.5f);
+			this.beatCounter.UpdateCurrentCounter(0.5f);
 		}
-		float result = this.beatCounter.SetCurrentCounter(0.5f);
+		float result = this.beatCounter.UpdateCurrentCounter(0.5f);
 		Assert.AreEqual(1.5f, result);
 	}
+
 	[Test]
-	public void BeatCounterLoopTestB()
+	public void BeatCounterLoopTestBpm100()
 	{
-		for(int i = 0; i < 20; i++)
+		this.iBeatCounter.Bpm.Returns(100f); // Length 2.4s
+		float result = 0.0f;
+		for(int i = 0; i < 120; i++) // Adds up to 2.64
 		{
-			this.beatCounter.SetCurrentCounter(0.25f);
+			result = this.beatCounter.UpdateCurrentCounter(0.022f);
 		}
-		float result = this.beatCounter.SetCurrentCounter(0.25f);
-		Assert.AreEqual(1.25f, result);
+
+		Assert.AreEqual(0.24f, result, 0.001f);
 	}
 
+	[Test]
+	public void BeatCounterLoopTestBpm120()
+	{
+		this.iBeatCounter.Bpm.Returns(120f); // Length 2s
+		float result = 0.0f;
+		for(int i = 0; i < 100; i++)
+		{
+			result = this.beatCounter.UpdateCurrentCounter(0.026f); // Adds up to 2.6f
+		}
+		Assert.AreEqual(0.6f, result, 0.001f);
+	}
+		
 	[Test]
 	public void BeatCounterCheckPeriodBar60()
 	{
 		this.iBeatCounter.Bpm.Returns(60f);
-		float result = this.beatCounter.GetPeriodBar();
+		float result = this.beatCounter.GetPeriodBarInSec();
 		Assert.AreEqual(4.0f, result);
 	} 
 	[Test]
 	public void BeatCounterCheckPeriodBar120()
 	{
 		this.iBeatCounter.Bpm.Returns(120f);
-		float result = this.beatCounter.GetPeriodBar();
+		float result = this.beatCounter.GetPeriodBarInSec();
 		Assert.AreEqual(2.0f, result);
 	} 
 
