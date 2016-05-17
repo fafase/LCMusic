@@ -6,7 +6,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{A6A151DA-E407-B9E6-6CA3-1A9695F57935}</ProjectGuid>
+    <ProjectGuid>{10F8F7DD-B7DE-8578-24CF-85E1AB41EE5F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -58,6 +58,7 @@
      <Compile Include="Assets\Scripts\Metronome.cs" />
      <Compile Include="Assets\Scripts\Piano\ChooseExercise\ChooseExerciseController.cs" />
      <Compile Include="Assets\Scripts\Piano\PianoKeyController.cs" />
+     <Compile Include="Assets\Scripts\Piano\RhythmGame\BeatCounter.cs" />
      <Compile Include="Assets\Scripts\Piano\RhythmGame\PadController.cs" />
      <Compile Include="Assets\Scripts\Piano\RhythmGame\PadMovementController.cs" />
      <Compile Include="Assets\Scripts\Piano\RhythmGame\RhythmController.cs" />

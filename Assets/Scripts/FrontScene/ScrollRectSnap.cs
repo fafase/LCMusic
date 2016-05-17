@@ -8,7 +8,7 @@ public interface IScrollRectSnap
     float Center { get;  }
     float SnapSpeed { get; }
     IEnumerable<ScrollButton> RectTrs { get; }
-    float MinSize { get; }
+	float MinSize{ get; }
 }
 public class ScrollRectSnap : MonoBehaviour, IScrollRectSnap
 {
@@ -22,7 +22,7 @@ public class ScrollRectSnap : MonoBehaviour, IScrollRectSnap
     [Range(0.0f,1.0f)]
     private float minSize;
 
-    public float MinSize { get { return this.minSize; } }
+	public float MinSize { get {return this.minSize; } }
 
 
     [SerializeField]

@@ -4,6 +4,7 @@ using System;
 public interface IScrollButton
 {
     IScrollRectSnap ScrollRectSnapInstance { get; }
+	void Init(IScrollRectSnap scrollRectSnap);
 }
 
 public class ScrollButton : MonoBehaviour , IScrollButton
@@ -21,9 +22,9 @@ public class ScrollButton : MonoBehaviour , IScrollButton
         this.scrollRectSnap = scrollRectSnap;
     }
 
-    public void SetScale(float distance, float threshold)
+	public void SetScale(float distance, float threshold)
     {
-        float scale = this.scrollBtn.SetScale(distance, Mathf.Abs(threshold));
+		float scale = this.scrollBtn.SetScale(distance, Mathf.Abs(threshold));
         this.transform.localScale = new Vector3(scale, scale, 1f);
     }
 }
@@ -38,9 +39,10 @@ public class ScrollButtonContainer
         this.scrollBtn = scrollButton;
     }
 
-    public float SetScale(float distance, float threshold)
+	public float SetScale(float distance, float threshold)
     {
-        return Mathf.Clamp( 1 - ((1 - this.scrollBtn.ScrollRectSnapInstance.MinSize) * ( distance / threshold )), this.scrollBtn.ScrollRectSnapInstance.MinSize, 1f);
+		return Mathf.Clamp( 1 - ((1 - this.scrollBtn.ScrollRectSnapInstance.MinSize) * ( distance / threshold )), 
+			this.scrollBtn.ScrollRectSnapInstance.MinSize, 1f);
     }
 }
 

@@ -9,7 +9,6 @@ public class PlayController : MonoBehaviour
 	private void Start()
 	{
 		var s = FindObjectsOfType<ISound> ();
-		Debug.Log (s.Length);
 		this.sounds = s as IEnumerable<ISound>;
 	}
 

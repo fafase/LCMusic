@@ -5,6 +5,7 @@ using System;
 public interface IPadController
 {
 	void HandleBpm();
+	float BarBeat { get; }
 }
 
 public class PadController : MonoBehaviour , IPadController
@@ -13,7 +14,13 @@ public class PadController : MonoBehaviour , IPadController
 
 	private PadContainer padContainer = null;
 	private IRhythmController rhytmController = null;
+	 
+	// TODO
+	// Will be fetched from json file
+	//
 	private float barBeat = 4f;
+	public float BarBeat{ get { return this.barBeat; } }
+
 	private Color selfColor = Color.black;
 
 	private float [] bpms = null;
