@@ -1,4 +1,0 @@
-sceneSetups:
-- path: Assets/Scene/Exercises/RhythmGame.unity
-  isLoaded: 1
-  isActive: 1
