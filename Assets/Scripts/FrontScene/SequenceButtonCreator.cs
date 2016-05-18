@@ -25,9 +25,7 @@ public class SequenceButtonCreator : MonoBehaviour, ISequenceBtnCreator
     private void Awake()
     {
         this.sequenceBtnCreator = new SequenceBtnCreatorHelper(this as ISequenceBtnCreator);
-
-        this.rt.anchoredPosition = this.sequenceBtnCreator.SetAnchorDimension(this.rt.anchoredPosition);
-        this.rt.sizeDelta = this.sequenceBtnCreator.SetAnchorDimension( this.rt.sizeDelta);
+		this.sequenceBtnCreator.SetRectTransform(this.rt);
 
         FrontUIAction ftUIAction = FindObjectOfType<FrontUIAction>();
         if (ftUIAction == null) { return; }
@@ -50,34 +48,34 @@ public class SequenceBtnCreatorHelper : IDisposable
     {
         this.sequence = sequence;
         string json = PlayerPrefs.GetString(ConstString.JsonData, null);
-		Debug.Log (json);
         if (json == null) 
 		{
 			throw new NullReferenceException ("Missing json file");		 
 		}
         this.rootObject = JsonUtility.FromJson<RootObject>(json);
     }
+		
 
-    public Vector2 SetAnchorDimension(Vector2 originalAnchorPos)
-    {
-        return SetDimension(originalAnchorPos, -1);
-    }
-
-    public Vector2 SetSizeDeltaDimension(Vector2 originalSizeDelta)
-    {
-        return SetDimension(originalSizeDelta, 1);
-    }
-
-    private Vector2 SetDimension(  Vector2 originalSize, int polarity)
-    {
-        if (this.rootObject == null || this.rootObject.lesson == null) { return originalSize; }
+	private float GetSize()
+	{
+		if (this.rootObject == null || this.rootObject.lesson == null) { return 0f; }
 		int btnLength = this.rootObject.lesson.Length;
-        if (btnLength == 0) { return originalSize; }
-        float dimension = this.sequence.Size * btnLength;
-        Vector2 size = originalSize;
-        size.y = dimension * polarity;
-        return originalSize;
-    }
+		if (btnLength == 0) { return 0f; }
+
+		return this.sequence.Size * btnLength;
+	}
+
+	public void SetRectTransform(RectTransform rt)
+	{
+		float size = GetSize();
+		Vector2 anchoredPosition = rt.anchoredPosition;
+		anchoredPosition.y = size / 2f * -1;
+		rt.anchoredPosition = anchoredPosition;
+
+		Vector2 sizeDelta = rt.sizeDelta;
+		sizeDelta.y = size;
+		rt.sizeDelta = sizeDelta;
+	}
 
     public void CreateButtons(IUIAction uiAction, RectTransform rt)
     {

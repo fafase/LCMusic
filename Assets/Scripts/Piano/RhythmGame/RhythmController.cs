@@ -75,7 +75,7 @@ public class RhythmContainer
 
 	private void CreateButtonsWithCurrentLesson()
 	{
-		int amount = this.currentLesson.rhythm.Length;
+		int amount = this.currentLesson.rhythm.beat.Length;
 		float scaleX = 10f / (float)amount; 
 		float posX = -5f + scaleX / 2f;
 		for (int i = 0; i < amount; i++)
@@ -87,7 +87,9 @@ public class RhythmContainer
 
 			CreatePadCube (scaleX, posX, 0.0f, i);
 			GameObject newObj = CreatePadCube (scaleX, posX, 20.0f, i);
-			newObj.AddComponent<PadController> ().Init(this.currentLesson.rhythm[i].bpms, this.rhythmController.PrefabPad);
+			newObj.AddComponent<PadController> ().Init(this.currentLesson.rhythm.beat[i].bpms,
+				this.currentLesson.rhythm.bar,
+				this.rhythmController.PrefabPad);
 		}
 	}
 

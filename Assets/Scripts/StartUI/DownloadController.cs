@@ -6,7 +6,7 @@ using LCHelper;
 
 public class DownloadController : MonoBehaviour
 {
-    private const string serverUrl = "https://raw.githubusercontent.com/fafase/unity-utilities/master/Scripts/data.json";
+    private const string serverUrl = "https://raw.githubusercontent.com/fafase/unity-utilities/master/Scripts/lcdata.json";
     public event EventHandler<DownloadCompleteArgs> RaiseDownloadComplete;
     protected void OnDownloadComplete(DownloadCompleteArgs arg)
     {

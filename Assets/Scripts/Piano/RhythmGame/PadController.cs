@@ -15,9 +15,6 @@ public class PadController : MonoBehaviour , IPadController
 	private PadContainer padContainer = null;
 	private IRhythmController rhytmController = null;
 	 
-	// TODO
-	// Will be fetched from json file
-	//
 	private float barBeat = 4f;
 	public float BarBeat{ get { return this.barBeat; } }
 
@@ -51,9 +48,10 @@ public class PadController : MonoBehaviour , IPadController
 		}
 	}
 
-	public void Init(float [] newBpms, GameObject obj)
+	public void Init(float [] newBpms, float newBarBeat, GameObject obj)
 	{
 		this.bpms = newBpms;
+		this.barBeat = newBarBeat;
 		this.padPrefab = obj;
 		this.selfColor = this.gameObject.GetComponent<MeshRenderer> ().material.color;
 	}
