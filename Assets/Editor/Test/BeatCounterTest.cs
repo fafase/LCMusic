@@ -79,21 +79,6 @@ public class BeatCounterTest
 		float result = this.beatCounter.CurrentCounter;
 		Assert.AreEqual(0.6f, result, 0.001f);
 	}
-		
-	[Test]
-	public void BeatCounterCheckPeriodBar60()
-	{
-		this.iBeatCounter.Bpm.Returns(60f);
-		float result = this.beatCounter.GetPeriodBarInSec();
-		Assert.AreEqual(4.0f, result);
-	} 
-	[Test]
-	public void BeatCounterCheckPeriodBar120()
-	{
-		this.iBeatCounter.Bpm.Returns(120f);
-		float result = this.beatCounter.GetPeriodBarInSec();
-		Assert.AreEqual(2.0f, result);
-	} 
 
 	[Test]
 	public void BeatCounterCheckElapsedOverFrame20ms()

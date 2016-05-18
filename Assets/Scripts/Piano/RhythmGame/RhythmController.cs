@@ -3,6 +3,7 @@ using System.Collections;
 using System;
 using LCHelper;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public interface IRhythmController 
 {
@@ -12,6 +13,7 @@ public interface IRhythmController
 	Transform Table { get; }
 	Material [] Materials { get; }
 	GameObject PrefabPad { get; }
+	void GetPadControllers(IEnumerable<IPadController> pcs);
 }
 
 public class RhythmController : MonoBehaviour , IRhythmController
@@ -53,6 +55,13 @@ public class RhythmController : MonoBehaviour , IRhythmController
 	{
 		this.metronome.RaiseBpm -= HandleBpm;
 	}
+	public void GetPadControllers(IEnumerable<IPadController> pcs)
+	{
+		BeatCounter beatCounter = this.gameObject.GetComponent<BeatCounter>();
+		if(beatCounter == null) { throw new NullReferenceException("Missing IBeatCounter"); }
+
+		beatCounter.GetPadControllers(pcs);
+	}
 }
 
 [Serializable]
@@ -68,14 +77,16 @@ public class RhythmContainer
 		this.rhythmController = rhythmController;
 		this.currentLesson = Save.DeserializeFromPlayerPrefs<Lesson> (ConstString.CurrentData);
 
-		CreateButtonsWithCurrentLesson ();
+		IEnumerable<IPadController> pcs = CreateButtonsWithCurrentLesson ();
+		this.rhythmController.GetPadControllers(pcs);
 	}
 
-	private void CreateButtonsWithCurrentLesson()
+	private IEnumerable<IPadController> CreateButtonsWithCurrentLesson()
 	{
 		int amount = this.currentLesson.rhythm.beat.Length;
 		float scaleX = 10f / (float)amount; 
 		float posX = -5f + scaleX / 2f;
+		IList<IPadController> list = new List<IPadController>();
 		for (int i = 0; i < amount; i++)
 		{
 			GameObject obj = (GameObject)UnityEngine.Object.Instantiate (this.rhythmController.PrefaBtn);
@@ -85,10 +96,13 @@ public class RhythmContainer
 
 			CreatePadCube (scaleX, posX, 0.0f, i);
 			GameObject newObj = CreatePadCube (scaleX, posX, 20.0f, i);
-			newObj.AddComponent<PadController> ().Init(this.currentLesson.rhythm.beat[i].bpms,
+			PadController pc = newObj.AddComponent<PadController> ();
+			pc.Init(this.currentLesson.rhythm.beat[i].bpms,
 				this.currentLesson.rhythm.bar,
 				this.rhythmController.PrefabPad);
+			list.Add(pc as IPadController);
 		}
+		return list as IEnumerable<IPadController>;
 	}
 
 	private GameObject CreatePadCube(float scaleX, float posX, float posY, int i)

@@ -6,6 +6,9 @@ public interface IPadController
 {
 	void HandleBpm();
 	float BarBeat { get; }
+
+	void CheckTimeForBeat(float elapsedTime);
+	void ResetBeat();
 }
 
 public class PadController : MonoBehaviour , IPadController
@@ -31,23 +34,6 @@ public class PadController : MonoBehaviour , IPadController
 		this.padContainer = new PadContainer (this as IPadController);
 	}
 		
-	private void Update()
-	{
-		timer += Time.deltaTime;
-		if (timer >= this.bpms [this.currentIndex]) 
-		{
-			if (++currentIndex >= this.bpms.Length) 
-			{
-				currentIndex = 0;
-			}
-		//	Debug.Log ("Hit " +this.name);
-		}
-		if (timer >= this.barBeat) 
-		{
-			this.timer = 0.0f;
-		}
-	}
-
 	public void Init(float [] newBpms, float newBarBeat, GameObject obj)
 	{
 		this.bpms = newBpms;
@@ -57,6 +43,29 @@ public class PadController : MonoBehaviour , IPadController
 	}
 
 	public void HandleBpm ()
+	{
+		
+	}
+
+	public void CheckTimeForBeat(float elapsedTime)
+	{
+		if(currentIndex >= this.bpms.Length) { return; }
+		if (elapsedTime >= this.bpms [this.currentIndex]) 
+		{
+			CreateBlock();
+			if (++currentIndex >= this.bpms.Length) 
+			{
+				return;
+			}
+
+		}
+	}
+	public void ResetBeat()
+	{
+		currentIndex = 0;
+	}
+
+	private void CreateBlock()
 	{
 		
 	}
