@@ -94,7 +94,6 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 
 	private void UpdateBeat()
 	{
-
 		this.beatCounter.UpdateCurrentCounter(this.metronome.ElapsedTime);
 	}
 }
@@ -110,10 +109,13 @@ public class BeatCounterContainer
 	{
 		this.beatCounter = beatCounter;	
 	}
+	private float previousElapsedTime = 0.0f;
 
 	public void UpdateCurrentCounter(float elapsedTime)
 	{
-		this.currentCounter += elapsedTime;
+		float deltaTime = elapsedTime - this.previousElapsedTime;
+		this.previousElapsedTime = elapsedTime;
+		this.currentCounter += deltaTime;
 		if(this.currentCounter >= GetPeriodBarInSec())
 		{
 			this.currentCounter -= GetPeriodBarInSec();
@@ -136,7 +138,7 @@ public class BeatCounterContainer
 public class MetronomeContainer
 {
 	private Stopwatch timer = null;
-
+	private int index = 0;
 	private float bpm = 60f;
 	public float Bpm { get { return this.bpm; } }
 
@@ -144,16 +146,17 @@ public class MetronomeContainer
 	public float Counter { get { return this.counter; } }
 	private float offsetTimer = 0.0f;
 
-	public float ElapsedTime 
+	/// <summary>
+	/// Gets the elapsed time in seconds.
+	/// </summary>
+	/// <value>The elapsed time.</value>
+	public float ElapsedTime
 	{ 
 		get
 		{ 
-			return(float)this.timer.ElapsedMilliseconds / 1000f;
+			return (float)this.timer.ElapsedMilliseconds / 1000f;
 		} 
 	}
-
-	private float previousTime = 0.0f;
-	public float DeltaTime { get { return  (float)this.timer.ElapsedMilliseconds / 1000f - this.previousTime; } }
 
 	public MetronomeContainer ()
 	{
@@ -182,13 +185,11 @@ public class MetronomeContainer
 
 	public bool UpdateMetronome()
 	{
-		float elapsedTimeOffset = this.ElapsedTime + this.offsetTimer;
-		if (elapsedTimeOffset < (this.Counter))
-		{
-			return false;
-		}
-		this.offsetTimer = elapsedTimeOffset- this.Counter;
-		this.ResetTimer ();
+		float elapsedMs = (float)this.timer.ElapsedMilliseconds;
+		float elapsedTimeOffset = (elapsedMs / 1000f) - this.Counter * this.index;
+		if (elapsedTimeOffset < (this.Counter)) { return false; }
+
+		this.index++;
 		return true;
 	}
 
