@@ -7,7 +7,6 @@ using System.Collections.Generic;
 
 public interface IRhythmController 
 {
-	IMetronome MetronomeObject { get; }
 	GameObject PrefaBtn { get; }
 	RectTransform Container { get; }
 	Transform Table { get; }
@@ -19,7 +18,6 @@ public interface IRhythmController
 public class RhythmController : MonoBehaviour , IRhythmController
 {
 	[SerializeField] private Text styleName; 
-	[SerializeField] private IMetronome metronome = null;
 	[SerializeField] private GameObject prefaBtn = null;
 	[SerializeField] private RectTransform container = null;
 	[SerializeField] private Transform table = null;
@@ -33,7 +31,6 @@ public class RhythmController : MonoBehaviour , IRhythmController
 	public Transform Table { get { return this.table; } }
 	public GameObject PrefaBtn { get { return this.prefaBtn; } }
 	public GameObject PrefabPad { get { return this.padPrefab; } }
-	public IMetronome MetronomeObject { get { return this.metronome; } }
 
 	private RhythmContainer rhythmContainer = null;
 
@@ -47,14 +44,8 @@ public class RhythmController : MonoBehaviour , IRhythmController
 		BeatCounter beatCounter = this.gameObject.GetComponent<BeatCounter>();
 		if(beatCounter == null) { throw new NullReferenceException("Missing IBeatCounter"); }
 		beatCounter.Init(currentLesson.rhythm.bar);
-		this.metronome = beatCounter as IMetronome;
-		this.metronome.RaiseBpm += HandleBpm;
 	}
-
-	private void HandleBpm (object sender, BpmBeatArg arg)
-	{
-		this.metronome.RaiseBpm -= HandleBpm;
-	}
+		
 	public void GetPadControllers(IEnumerable<IPadController> pcs)
 	{
 		BeatCounter beatCounter = this.gameObject.GetComponent<BeatCounter>();

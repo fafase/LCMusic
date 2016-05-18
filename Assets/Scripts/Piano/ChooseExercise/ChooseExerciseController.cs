@@ -9,12 +9,12 @@ public class ChooseExerciseController : MonoBehaviour, IChooseExercise
 {
 	[SerializeField] private Text styleName = null;
 
-	private ChooseExerciseContainer chooseExercise = null;
+	//private ChooseExerciseContainer chooseExercise = null;
 
 	private void Awake()
 	{
 		if (this.styleName == null) { throw new NullReferenceException ("Missing styleName text");}
-		this.chooseExercise = new ChooseExerciseContainer (this as IChooseExercise);
+		//this.chooseExercise = new ChooseExerciseContainer (this as IChooseExercise);
 		Lesson lesson = Save.DeserializeFromPlayerPrefs<Lesson> (ConstString.CurrentData);
 		if (lesson != null) 
 		{
@@ -24,22 +24,22 @@ public class ChooseExerciseController : MonoBehaviour, IChooseExercise
 
 	private void OnDestroy()
 	{
-		this.chooseExercise = null;
+		//this.chooseExercise = null;
 	}
 }
 
 [Serializable]
 public class ChooseExerciseContainer : IDisposable
 {
-	private IChooseExercise chooseExercise = null;
+	//private IChooseExercise chooseExercise = null;
 	public ChooseExerciseContainer(IChooseExercise chooseExercise)
 	{
-		this.chooseExercise = chooseExercise;
+	//	this.chooseExercise = chooseExercise;
 	}
 
 	public void Dispose()
 	{
-		this.chooseExercise = null;
+	//	this.chooseExercise = null;
 	}
 }
 

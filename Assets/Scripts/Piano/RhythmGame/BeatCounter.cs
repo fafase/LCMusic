@@ -32,7 +32,6 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 	public float BarLength { get { return this.barLength; } }
 
 	public float Bpm { get { return this.metronome.Bpm; } }
-	private float timer = 0f;
 	public float ElapsedTime { get{ return this.metronome.ElapsedTime; } }
 	public event EventHandler<BpmArg> RaiseChangeBpm;
 	protected void OnChangeBpm(BpmArg args)
@@ -148,7 +147,6 @@ public class MetronomeContainer
 
 	private float counter = 0;
 	public float Counter { get { return this.counter; } }
-	private float offsetTimer = 0.0f;
 
 	/// <summary>
 	/// Gets the elapsed time in seconds.
