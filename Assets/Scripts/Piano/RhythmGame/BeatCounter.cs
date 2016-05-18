@@ -16,7 +16,7 @@ public class BeatCounter : MonoBehaviour , IBeatCounter
 
 	private float bpm = 0.0f;
 	public float Bpm { get {  return this.bpm; } }
-		
+
 	public void Init(IPadController padCtrl, float newBpm)
 	{
 		this.barLength = padCtrl.BarBeat;
@@ -26,7 +26,9 @@ public class BeatCounter : MonoBehaviour , IBeatCounter
 
 	private void Update () 
 	{
-		
+		float elapsedTime = this.beatCounter.GetElapsedTime();
+		this.beatCounter.UpdateCurrentCounter(elapsedTime);
+		Debug.Log(this.beatCounter.CurrentCounter);
 	}
 }
 
@@ -35,20 +37,22 @@ public class BeatCounterContainer
 {
 	private IBeatCounter beatCounter = null;
 	private float currentCounter = 0.0f;
+	public float CurrentCounter { get { return this.currentCounter; } }
+	private DateTime previousDateTime;
 
 	public BeatCounterContainer (IBeatCounter beatCounter)
 	{
 		this.beatCounter = beatCounter;	
+		this.previousDateTime = DateTime.Now;
 	}
 
-	public float UpdateCurrentCounter(float deltaTime)
+	public void UpdateCurrentCounter(float elapsedTime)
 	{
-		this.currentCounter += deltaTime;
+		this.currentCounter += elapsedTime;
 		if(this.currentCounter >= GetPeriodBarInSec())
 		{
 			this.currentCounter -= GetPeriodBarInSec();
 		}
-		return this.currentCounter;
 	}
 
 	public void ResetCurrentCounter()
@@ -60,6 +64,15 @@ public class BeatCounterContainer
 	{
 		float periodBar = 60f / this.beatCounter.Bpm * this.beatCounter.BarLength;
 		return periodBar;
+	}
+
+	public float GetElapsedTime()
+	{
+		DateTime now = DateTime.Now;
+		TimeSpan ts = now.Subtract(this.previousDateTime);
+		this.previousDateTime = now;
+		float elapsedTime = ts.Milliseconds / 1000f;
+		return elapsedTime;
 	}
 }
 

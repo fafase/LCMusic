@@ -2,6 +2,8 @@
 using UnityEditor;
 using NUnit.Framework;
 using NSubstitute;
+using System;
+using System.Reflection;
 
 public class BeatCounterTest 
 {
@@ -26,7 +28,8 @@ public class BeatCounterTest
     [Test]
     public void BeatCounterAddTime()
     {
-		float result = this.beatCounter.UpdateCurrentCounter(2.0f);
+		this.beatCounter.UpdateCurrentCounter(2.0f);
+		float result = this.beatCounter.CurrentCounter;
 		Assert.AreEqual(2.0f, result);
     }
 
@@ -34,7 +37,8 @@ public class BeatCounterTest
 	public void BeatCounterResetTimeAfterBarLength()
 	{
 		this.beatCounter.UpdateCurrentCounter(3.0f);
-		float result = this.beatCounter.UpdateCurrentCounter(1.5f);
+		this.beatCounter.UpdateCurrentCounter(1.5f);
+		float result = this.beatCounter.CurrentCounter;
 		Assert.AreEqual(0.5f, result);
 	}
 
@@ -46,20 +50,19 @@ public class BeatCounterTest
 		{
 			this.beatCounter.UpdateCurrentCounter(0.5f);
 		}
-		float result = this.beatCounter.UpdateCurrentCounter(0.5f);
-		Assert.AreEqual(1.5f, result);
+		float result = this.beatCounter.CurrentCounter;
+		Assert.AreEqual(1.0f, result);
 	}
 
 	[Test]
 	public void BeatCounterLoopTestBpm100()
 	{
 		this.iBeatCounter.Bpm.Returns(100f); // Length 2.4s
-		float result = 0.0f;
 		for(int i = 0; i < 120; i++) // Adds up to 2.64
 		{
-			result = this.beatCounter.UpdateCurrentCounter(0.022f);
+			this.beatCounter.UpdateCurrentCounter(0.022f);
 		}
-
+		float result = this.beatCounter.CurrentCounter;
 		Assert.AreEqual(0.24f, result, 0.001f);
 	}
 
@@ -67,11 +70,11 @@ public class BeatCounterTest
 	public void BeatCounterLoopTestBpm120()
 	{
 		this.iBeatCounter.Bpm.Returns(120f); // Length 2s
-		float result = 0.0f;
 		for(int i = 0; i < 100; i++)
 		{
-			result = this.beatCounter.UpdateCurrentCounter(0.026f); // Adds up to 2.6f
+			this.beatCounter.UpdateCurrentCounter(0.026f); // Adds up to 2.6f
 		}
+		float result = this.beatCounter.CurrentCounter;
 		Assert.AreEqual(0.6f, result, 0.001f);
 	}
 		
@@ -90,4 +93,49 @@ public class BeatCounterTest
 		Assert.AreEqual(2.0f, result);
 	} 
 
+	[Test]
+	public void BeatCounterCheckElapsedTime()
+	{
+		SetDateTime(20);
+		float result = this.beatCounter.GetElapsedTime();
+		Assert.AreEqual(0.02f, result, 0.001);
+	}
+
+	[Test]
+	public void BeatCounterCheckElapsedOverFrame20ms()
+	{
+		for(int i = 0; i < 250; i++)
+		{
+			SetDateTime(20);
+			UpdateBeatCounter();
+		}
+		float result = this.beatCounter.CurrentCounter;
+		Assert.AreEqual(1.0f, result, 0.001f);
+	}
+
+	[Test]
+	public void BeatCounterCheckElapsedOverFrame16ms()
+	{
+		for(int i = 0; i < 300; i++)
+		{
+			SetDateTime(16);
+			UpdateBeatCounter();
+		}
+		float result = this.beatCounter.CurrentCounter;
+		Assert.AreEqual(0.8f, result, 0.01f);
+	}
+
+	private void UpdateBeatCounter()
+	{
+		float elapsedTime = this.beatCounter.GetElapsedTime();
+		this.beatCounter.UpdateCurrentCounter(elapsedTime);
+	}
+	private void SetDateTime(int elapsedTimeMs)
+	{
+		DateTime dt = DateTime.Now;
+		TimeSpan ts = new TimeSpan(0,0,0,0,-elapsedTimeMs);
+		dt = dt + ts;
+		FieldInfo fi = this.beatCounter.GetType().GetField("previousDateTime",BindingFlags.NonPublic| BindingFlags.Instance);
+		fi.SetValue(this.beatCounter, dt);
+	}
 }
