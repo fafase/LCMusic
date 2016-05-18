@@ -40,7 +40,7 @@ public class PadController : MonoBehaviour , IPadController
 			{
 				currentIndex = 0;
 			}
-			Debug.Log ("Hit " +this.name);
+		//	Debug.Log ("Hit " +this.name);
 		}
 		if (timer >= this.barBeat) 
 		{

@@ -37,19 +37,16 @@ public class RhythmController : MonoBehaviour , IRhythmController
 
 	private void Start()
 	{
-		this.metronome = FindObjectOfType<Metronome> () as IMetronome;
-		this.metronome.RaiseBpm += HandleBpm;
 
 		this.rhythmContainer = new RhythmContainer (this as IRhythmController);
-		this.styleName.text = this.rhythmContainer.CurrentLesson.name;
-
-		IPadController padCtrl = this.gameObject.GetComponent<IPadController>();
-		if(padCtrl == null) { throw new NullReferenceException("Missing IPadController"); }
-		IMetronome metronome = this.gameObject.GetComponent<IMetronome>();
-		if(metronome == null) { throw new NullReferenceException("Missing IMetronome"); }
+		Lesson currentLesson = this.rhythmContainer.CurrentLesson;
+		this.styleName.text = currentLesson.name;
+	
 		BeatCounter beatCounter = this.gameObject.GetComponent<BeatCounter>();
 		if(beatCounter == null) { throw new NullReferenceException("Missing IBeatCounter"); }
-		beatCounter.Init(padCtrl, metronome.Bpm);
+		beatCounter.Init(currentLesson.rhythm.bar);
+		this.metronome = beatCounter as IMetronome;
+		this.metronome.RaiseBpm += HandleBpm;
 	}
 
 	private void HandleBpm (object sender, BpmBeatArg arg)
@@ -70,6 +67,7 @@ public class RhythmContainer
 	{
 		this.rhythmController = rhythmController;
 		this.currentLesson = Save.DeserializeFromPlayerPrefs<Lesson> (ConstString.CurrentData);
+
 		CreateButtonsWithCurrentLesson ();
 	}
 
