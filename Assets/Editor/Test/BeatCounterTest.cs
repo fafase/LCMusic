@@ -8,17 +8,19 @@ using System.Reflection;
 public class BeatCounterTest 
 {
 	private BeatCounterContainer beatCounter = null;
+	private MetronomeContainer metronome = null;
 	private IBeatCounter iBeatCounter = null;
-	private IMetronome metronome = null;
+	private IMetronome iMetronome = null;
 
 	[TestFixtureSetUp]
-	public void SetUp()
+	private void BeatContainer_Init()
 	{
-		this.metronome = Substitute.For<IMetronome>();
 		this.iBeatCounter = Substitute.For<IBeatCounter>();
 		this.iBeatCounter.BarLength.Returns(4f);
 		this.iBeatCounter.Bpm.Returns(60f);
 		this.beatCounter = new BeatCounterContainer(iBeatCounter);
+		this.iMetronome = Substitute.For<IMetronome>();
+		this.metronome = new MetronomeContainer();
 	}
 
 	[SetUp]
@@ -85,7 +87,7 @@ public class BeatCounterTest
 	{
 		for(int i = 0; i < 250; i++)
 		{
-			UpdateBeatCounter(0.02f);
+			this.beatCounter.UpdateCurrentCounter(0.02f);
 		}
 		float result = this.beatCounter.CurrentCounter;
 		Assert.AreEqual(1.0f, result, 0.001f);
@@ -96,25 +98,9 @@ public class BeatCounterTest
 	{
 		for(int i = 0; i < 300; i++)
 		{
-			//SetDateTime(16);
-			UpdateBeatCounter(0.016f);
+			this.beatCounter.UpdateCurrentCounter(0.016f);
 		}
 		float result = this.beatCounter.CurrentCounter;
 		Assert.AreEqual(0.8f, result, 0.01f);
-	}
-
-	private void UpdateBeatCounter(float ms)
-	{
-		this.metronome.ElapsedTime.Returns(ms);
-		float elapsedTime = this.metronome.ElapsedTime;
-		this.beatCounter.UpdateCurrentCounter(elapsedTime);
-	}
-	private void SetDateTime(int elapsedTimeMs)
-	{
-		DateTime dt = DateTime.Now;
-		TimeSpan ts = new TimeSpan(0,0,0,0,-elapsedTimeMs);
-		dt = dt + ts;
-		FieldInfo fi = this.beatCounter.GetType().GetField("previousDateTime",BindingFlags.NonPublic| BindingFlags.Instance);
-		fi.SetValue(this.beatCounter, dt);
 	}
 }

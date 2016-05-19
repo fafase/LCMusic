@@ -11,8 +11,10 @@ public interface IRhythmController
 	RectTransform Container { get; }
 	Transform Table { get; }
 	Material [] Materials { get; }
-	GameObject PrefabPad { get; }
 	void GetPadControllers(IEnumerable<IPadController> pcs);
+	ObjectPool Pool { get; }
+	GameObject PrefabPad { get; }
+	Transform ContainerPad { get; }
 }
 
 public class RhythmController : MonoBehaviour , IRhythmController
@@ -22,21 +24,25 @@ public class RhythmController : MonoBehaviour , IRhythmController
 	[SerializeField] private RectTransform container = null;
 	[SerializeField] private Transform table = null;
 	[SerializeField] private GameObject padPrefab = null;
-
+	public GameObject PrefabPad { get{ return this.padPrefab; } }
 	public Material[] materials;
 
 	public Material [] Materials { get { return this.materials; } }
 
 	public RectTransform Container { get { return this.container; }}
+	public Transform ContainerPad { get { return this.transform; } }
 	public Transform Table { get { return this.table; } }
 	public GameObject PrefaBtn { get { return this.prefaBtn; } }
-	public GameObject PrefabPad { get { return this.padPrefab; } }
 
 	private RhythmContainer rhythmContainer = null;
 
-	private void Start()
-	{
+	private ObjectPool pool = null;
+	public ObjectPool Pool { get { return this.pool; } }
 
+	private void Awake()
+	{
+		SetObjectPool();
+		
 		this.rhythmContainer = new RhythmContainer (this as IRhythmController);
 		Lesson currentLesson = this.rhythmContainer.CurrentLesson;
 		this.styleName.text = currentLesson.name;
@@ -52,6 +58,12 @@ public class RhythmController : MonoBehaviour , IRhythmController
 		if(beatCounter == null) { throw new NullReferenceException("Missing IBeatCounter"); }
 
 		beatCounter.GetPadControllers(pcs);
+	}
+
+	private void SetObjectPool()
+	{
+		this.pool = ObjectPool.Instance;
+		this.pool.AddToPool(this.padPrefab, 10, this.transform);
 	}
 }
 
@@ -87,10 +99,15 @@ public class RhythmContainer
 
 			CreatePadCube (scaleX, posX, 0.0f, i);
 			GameObject newObj = CreatePadCube (scaleX, posX, 20.0f, i);
+			newObj.name = "StartCube_"+i.ToString();
+			newObj.tag = "Player";
 			PadController pc = newObj.AddComponent<PadController> ();
-			pc.Init(this.currentLesson.rhythm.beat[i].bpms,
+			pc.Init(this.rhythmController, 
+				this.currentLesson.rhythm.beat[i].bpms,
 				this.currentLesson.rhythm.bar,
-				this.rhythmController.PrefabPad);
+				this.rhythmController.Pool,
+				this.rhythmController.PrefabPad, 
+				this.rhythmController.ContainerPad);
 			list.Add(pc as IPadController);
 		}
 		return list as IEnumerable<IPadController>;
@@ -99,7 +116,11 @@ public class RhythmContainer
 	private GameObject CreatePadCube(float scaleX, float posX, float posY, int i)
 	{
 		GameObject newCube = UnityEngine.GameObject.CreatePrimitive (PrimitiveType.Cube);
-		newCube.name = "Cube_" + i.ToString ();
+		newCube.name = "EndPad_" + i.ToString ();
+		newCube.tag = "EndPad";
+		Rigidbody rig = newCube.AddComponent<Rigidbody>();
+		rig.isKinematic = true;
+		newCube.GetComponent<Collider>().isTrigger = true;
 		newCube.transform.parent = this.rhythmController.Table;
 		newCube.GetComponent<MeshRenderer> ().material = this.rhythmController.Materials [i];
 		newCube.transform.localScale = new Vector3 (scaleX, 1f, 0.5f);

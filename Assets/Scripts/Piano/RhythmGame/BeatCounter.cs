@@ -51,19 +51,16 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 
 	private int barBeat = 0;
 
-	private void Start()
+	private void Awake()
 	{
-		if (this.bpmText == null) 
-		{
-			throw new NullReferenceException ("Missing bpmText");
-		}
-		this.metronome = new MetronomeContainer ();
+		if (this.bpmText == null)  { throw new NullReferenceException ("Missing bpmText"); }
 		this.audioSource = this.gameObject.GetComponent<AudioSource> ();
-		this.bpmText.text = ((int)this.metronome.Bpm).ToString ();
 	}
 
 	public void Init(float newBarLength)
 	{
+		this.metronome = new MetronomeContainer ();
+		this.bpmText.text = ((int)this.metronome.Bpm).ToString ();
 		this.barLength = newBarLength;
 		this.beatCounter = new BeatCounterContainer(this as IBeatCounter);
 	}
@@ -78,11 +75,6 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 	{
 		this.bpmText.text = ((int)this.metronome.SetBpm (value)).ToString ();
 		OnChangeBpm (new BpmArg(this.Bpm));
-	}
-
-	public float GetElapsedTime()
-	{
-		return this.metronome.ElapsedTime;
 	}
 
 	private void UpdateMetronome()
