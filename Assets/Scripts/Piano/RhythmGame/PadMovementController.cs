@@ -5,7 +5,7 @@ using System;
 public interface IPadMovement
 {
 	void HandleChangeBpm (BpmArg bpmArg);
-	void InitPadMovement(Color color, Transform containerPad);
+	void InitPadMovement(IPadController newPadCtrl, Color color, Transform containerPad);
 }
 public class PadMovementController : MonoBehaviour, IPadMovement, IPoolObject
 {
@@ -14,11 +14,12 @@ public class PadMovementController : MonoBehaviour, IPadMovement, IPoolObject
 	public void Init (){ }
 
 	public GameObject Prefab { get; set; }
-
+	private IPadController padCtrl = null;
 	#endregion
 
-	public void InitPadMovement(Color color, Transform newContainerPad)
+	public void InitPadMovement(IPadController newPadCtrl, Color color, Transform newContainerPad)
 	{
+		this.padCtrl = newPadCtrl;
 		this.gameObject.GetComponent<MeshRenderer>().material.color = color;
 		this.padMovement.SetPoolItem(newContainerPad);
 	}
@@ -50,11 +51,22 @@ public class PadMovementController : MonoBehaviour, IPadMovement, IPoolObject
 
 	private void OnTriggerEnter(Collider col)
 	{
-		this.padMovement.CollisionEnter(col);
+		if(this.padMovement.CollisionEnterWithEndPad(col) == true)
+		{
+			// send message to PadController that entered
+			if(this.padCtrl == null) { return; }
+			this.padCtrl.SetEndPadCollisionEnter();
+		}
 	}
+
 	private void OnTriggerExit(Collider col)
 	{
-		this.padMovement.CollisionExit(col);
+		if(this.padMovement.CollisionExitWithEndPad(col) == true)
+		{
+			// Send message to PadController that exited
+			if(this.padCtrl == null){ return; }
+			this.padCtrl.SetEndPadCollisionExit();
+		}
 	}
 }
 [Serializable]
@@ -82,21 +94,23 @@ public class PadMovementContainer
 		this.speed = newBpm;
 	}
 
-	public void CollisionEnter(Collider col)
+	public bool CollisionEnterWithEndPad(Collider col)
 	{
 		if(col.gameObject.CompareTag("EndPad"))
 		{
-			// Send Message to PadController
+			return true;
 		}
+		return false;
 	}
-	public void CollisionExit(Collider col)
+
+	public bool CollisionExitWithEndPad(Collider col)
 	{
 		if(col.gameObject.CompareTag("EndPad"))
 		{
-			// Send Message to PadController
 			GameObject go = this.gameObject;
 			this.pool.PushToPool(ref go, true, this.containerPad);
-
+			return true;
 		}
+		return false;
 	}
 }

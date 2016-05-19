@@ -9,11 +9,14 @@ public interface IPadController
 
 	void CheckTimeForBeat(float elapsedTime);
 	void ResetBeat();
+
+	void SetEndPadCollisionEnter();
+	void SetEndPadCollisionExit();
+	void OnPointerEnter();
 }
 
 public class PadController : MonoBehaviour , IPadController
 {
-	private PadContainer padContainer = null;
 	private IRhythmController rhytmController = null;
 
 	private float barBeat = 4f;
@@ -31,11 +34,8 @@ public class PadController : MonoBehaviour , IPadController
 	private Transform container = null;
 	private GameObject prefab = null;
 
-	private void Awake()
-	{
-		this.padContainer = new PadContainer (this as IPadController);
-	}
-		
+	private bool isPadInside = false;
+
 	public void Init(IRhythmController newRhythmController, float [] newBpms, float newBarBeat, ObjectPool newPool, GameObject newPrefab, Transform newContainer)
 	{
 		this.rhytmController = newRhythmController;
@@ -75,17 +75,26 @@ public class PadController : MonoBehaviour , IPadController
 		GameObject obj = this.pool.PopFromPool(this.prefab, false, true, this.container);
 		obj.transform.position = this.transform.position;
 		IPadMovement padMovement = obj.GetComponent<IPadMovement>();
-		padMovement.InitPadMovement(this.selfColor, this.rhytmController.ContainerPad);
+		padMovement.InitPadMovement(this as IPadController, this.selfColor, this.rhytmController.ContainerPad);
 	}
-}
 
-[Serializable]
-public class PadContainer
-{
-	private IPadController padController = null;
-
-	public PadContainer(IPadController padController)
+	public void SetEndPadCollisionEnter()
 	{
-		this.padController = padController;
+		this.isPadInside = true;
+	}
+
+	public void SetEndPadCollisionExit()
+	{
+		this.isPadInside = false;
+	}
+
+	public void OnPointerEnter()
+	{
+		if(this.isPadInside == true)
+		{
+			Debug.Log("Win");
+			return;
+		}
+		Debug.Log("Lose");
 	}
 }

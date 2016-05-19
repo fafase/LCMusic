@@ -42,6 +42,7 @@ public class RhythmController : MonoBehaviour , IRhythmController
 	private void Awake()
 	{
 		SetObjectPool();
+
 		this.rhythmContainer = new RhythmContainer (this as IRhythmController);
 		Lesson currentLesson = this.rhythmContainer.CurrentLesson;
 		this.styleName.text = currentLesson.name;
@@ -96,15 +97,13 @@ public class RhythmContainer
 		IList<IPadController> list = new List<IPadController>();
 		for (int i = 0; i < amount; i++)
 		{
-			GameObject obj = (GameObject)UnityEngine.Object.Instantiate (this.rhythmController.PrefaBtn);
+			GameObject btnObj = (GameObject)UnityEngine.Object.Instantiate (this.rhythmController.PrefaBtn);
 			RectTransform rtContainer = this.rhythmController.Container;
-			obj.GetComponent<RectTransform> ().SetParent (rtContainer, false);
-			obj.GetComponent<Image> ().color = this.btnColor [i];
+			btnObj.GetComponent<RectTransform> ().SetParent (rtContainer, false);
+			btnObj.GetComponent<Image> ().color = this.btnColor [i];
 
-			CreatePadCube (scaleX, posX, 0.0f, i);
-			GameObject newObj = CreatePadCube (scaleX, posX, 20.0f, i);
-			newObj.name = "StartCube_"+i.ToString();
-			newObj.tag = "Player";
+			CreateEndCube (scaleX, posX, i);
+			GameObject newObj = CreateStartCube (scaleX, posX, i);
 			PadController pc = newObj.AddComponent<PadController> ();
 			pc.Init(this.rhythmController, 
 				this.currentLesson.rhythm.beat[i].bpms,
@@ -113,6 +112,7 @@ public class RhythmContainer
 				this.rhythmController.PrefabPad, 
 				this.rhythmController.ContainerPad);
 			list.Add(pc as IPadController);
+			btnObj.GetComponent<ButtonController>().InitWithPadController(pc);
 		}
 		return list as IEnumerable<IPadController>;
 	}
@@ -130,6 +130,32 @@ public class RhythmContainer
 		newCube.transform.localScale = new Vector3 (scaleX, 1f, 0.5f);
 		float tempX = posX + (float)i * scaleX; 
 		newCube.transform.localPosition = new Vector3 (tempX,0f,posY);
+		return newCube;
+	}
+	private void CreateEndCube(float scaleX, float posX, int i)
+	{
+		GameObject newCube = UnityEngine.GameObject.CreatePrimitive (PrimitiveType.Cube);
+		newCube.name = "EndPad_" + i.ToString ();
+		newCube.tag = "EndPad";
+		Rigidbody rig = newCube.AddComponent<Rigidbody>();
+		rig.isKinematic = true;
+		newCube.GetComponent<Collider>().isTrigger = true;
+		newCube.transform.parent = this.rhythmController.Table;
+		newCube.GetComponent<MeshRenderer> ().material = this.rhythmController.Materials [i];
+		newCube.transform.localScale = new Vector3 (scaleX, 1f, 0.5f);
+		float tempX = posX + (float)i * scaleX; 
+		newCube.transform.localPosition = new Vector3 (tempX,0f,0.0f);
+	}
+
+	private GameObject CreateStartCube(float scaleX, float posX, int i)
+	{
+		GameObject newCube = UnityEngine.GameObject.CreatePrimitive (PrimitiveType.Cube);
+		newCube.name = "StartCube" + i.ToString ();
+		newCube.transform.parent = this.rhythmController.Table;
+		newCube.GetComponent<MeshRenderer> ().material = this.rhythmController.Materials [i];
+		newCube.transform.localScale = new Vector3 (scaleX, 1f, 0.5f);
+		float tempX = posX + (float)i * scaleX; 
+		newCube.transform.localPosition = new Vector3 (tempX,0f,20.0f);
 		return newCube;
 	}
 }
