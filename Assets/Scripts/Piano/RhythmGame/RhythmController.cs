@@ -42,7 +42,6 @@ public class RhythmController : MonoBehaviour , IRhythmController
 	private void Awake()
 	{
 		SetObjectPool();
-		
 		this.rhythmContainer = new RhythmContainer (this as IRhythmController);
 		Lesson currentLesson = this.rhythmContainer.CurrentLesson;
 		this.styleName.text = currentLesson.name;
@@ -51,7 +50,12 @@ public class RhythmController : MonoBehaviour , IRhythmController
 		if(beatCounter == null) { throw new NullReferenceException("Missing IBeatCounter"); }
 		beatCounter.Init(currentLesson.rhythm.bar);
 	}
-		
+
+	private void OnDestroy()
+	{
+		this.pool.DeletePool();
+	}
+
 	public void GetPadControllers(IEnumerable<IPadController> pcs)
 	{
 		BeatCounter beatCounter = this.gameObject.GetComponent<BeatCounter>();

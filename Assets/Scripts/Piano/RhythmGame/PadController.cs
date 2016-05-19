@@ -75,8 +75,7 @@ public class PadController : MonoBehaviour , IPadController
 		GameObject obj = this.pool.PopFromPool(this.prefab, false, true, this.container);
 		obj.transform.position = this.transform.position;
 		IPadMovement padMovement = obj.GetComponent<IPadMovement>();
-		padMovement.Pool = this.pool;
-		padMovement.ContainerPad = this.rhytmController.ContainerPad;
+		padMovement.InitPadMovement(this.selfColor, this.rhytmController.ContainerPad);
 	}
 }
 

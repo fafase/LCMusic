@@ -38,6 +38,8 @@ public sealed class ObjectPool
 	public bool AddToPool(GameObject prefab, int count, Transform parent = null) 
 	{
 		if (prefab == null || count <= 0) { return false; }
+		if(this.container == null){ this.container = new Dictionary<GameObject, Queue<GameObject>>(); }
+
 		for (int i = 0; i < count; i++)
 		{
 			GameObject obj = PopFromPool(prefab, true, false, parent);
@@ -159,8 +161,13 @@ public sealed class ObjectPool
 				Object.Destroy(obj);
 			}
 		}
-		container = null;
-		container = new Dictionary<GameObject, Queue<GameObject>>();
+		this.container = null;
+	}
+
+	public void DeletePool()
+	{
+		ReleasePool();
+		instance = null;
 	}
 }
 public interface IPoolObject
