@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using UnityEngine.UI;
 
 public interface IScrollButton
 {
@@ -7,13 +8,21 @@ public interface IScrollButton
 	void Init(IScrollRectSnap scrollRectSnap);
 }
 
+[RequireComponent(typeof(Button))]
 public class ScrollButton : MonoBehaviour , IScrollButton
 {
     private ScrollButtonContainer scrollBtn = null;
     private IScrollRectSnap scrollRectSnap = null;
-    public IScrollRectSnap ScrollRectSnapInstance { get { return this.scrollRectSnap; } }
+    public 	IScrollRectSnap ScrollRectSnapInstance { get { return this.scrollRectSnap; } }
     private RectTransform rt = null;
-    public RectTransform RectTr { get { return this.rt; } }
+    public 	RectTransform RectTr { get { return this.rt; } }
+	private Button button = null;
+
+	private void Awake()
+	{
+		this.button = this.gameObject.GetComponent<Button>();
+		this.button.interactable = false;
+	}
 
     public void Init(IScrollRectSnap scrollRectSnap)
     {
@@ -25,6 +34,7 @@ public class ScrollButton : MonoBehaviour , IScrollButton
 	public void SetScale(float distance, float threshold)
     {
 		float scale = this.scrollBtn.SetScale(distance, Mathf.Abs(threshold));
+		this.button.interactable = (scale > 0.9f); 
         this.transform.localScale = new Vector3(scale, scale, 1f);
     }
 }

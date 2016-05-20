@@ -10,14 +10,15 @@ public interface IPadController
 	void CheckTimeForBeat(float elapsedTime);
 	void ResetBeat();
 
-	void SetEndPadCollisionEnter();
-	void SetEndPadCollisionExit();
+	void SetEndPadCollisionEnter(IPadMovement padMovement);
+	void SetEndPadCollisionExit(IPadMovement padMovement);
 	void OnPointerEnter();
 }
 
 public class PadController : MonoBehaviour , IPadController
 {
-	private IRhythmController rhytmController = null;
+	private IRhythmController rhythmController = null;
+	private IRhythmStreak rhythmStreak = null;
 
 	private float barBeat = 4f;
 	public float BarBeat{ get { return this.barBeat; } }
@@ -36,9 +37,14 @@ public class PadController : MonoBehaviour , IPadController
 
 	private bool isPadInside = false;
 
-	public void Init(IRhythmController newRhythmController, float [] newBpms, float newBarBeat, ObjectPool newPool, GameObject newPrefab, Transform newContainer)
+	private IPadMovement currentPadMovement = null;
+	private int index = -1;
+
+	public void Init(IRhythmController newRhythmController, IRhythmStreak newRhythmStreak,int newIndex, float [] newBpms, float newBarBeat, ObjectPool newPool, GameObject newPrefab, Transform newContainer)
 	{
-		this.rhytmController = newRhythmController;
+		this.rhythmController = newRhythmController;
+		this.rhythmStreak = newRhythmStreak;
+		this.index = newIndex;
 		this.bpms = newBpms;
 		this.barBeat = newBarBeat;
 		this.selfColor = this.gameObject.GetComponent<MeshRenderer> ().material.color;
@@ -62,7 +68,6 @@ public class PadController : MonoBehaviour , IPadController
 			{
 				return;
 			}
-
 		}
 	}
 	public void ResetBeat()
@@ -75,26 +80,29 @@ public class PadController : MonoBehaviour , IPadController
 		GameObject obj = this.pool.PopFromPool(this.prefab, false, true, this.container);
 		obj.transform.position = this.transform.position;
 		IPadMovement padMovement = obj.GetComponent<IPadMovement>();
-		padMovement.InitPadMovement(this as IPadController, this.selfColor, this.rhytmController.ContainerPad);
+		padMovement.InitPadMovement(this as IPadController, this.selfColor, this.rhythmController.ContainerPad);
 	}
 
-	public void SetEndPadCollisionEnter()
+	public void SetEndPadCollisionEnter(IPadMovement padMovement)
 	{
-		this.isPadInside = true;
+		this.currentPadMovement = padMovement;
 	}
 
-	public void SetEndPadCollisionExit()
+	public void SetEndPadCollisionExit(IPadMovement padMovement)
 	{
-		this.isPadInside = false;
+		this.currentPadMovement = null;
+		this.rhythmStreak.ResetStreak();
 	}
 
 	public void OnPointerEnter()
 	{
-		if(this.isPadInside == true)
+		if(this.currentPadMovement != null)
 		{
-			Debug.Log("Win");
+			this.rhythmStreak.IncreaseStreak(this.index);
+			this.currentPadMovement.TapOnPadSuccessful();
+			this.currentPadMovement = null;
 			return;
 		}
-		Debug.Log("Lose");
+		this.rhythmStreak.ResetStreak();
 	}
 }

@@ -15,15 +15,27 @@ public interface IRhythmController
 	ObjectPool Pool { get; }
 	GameObject PrefabPad { get; }
 	Transform ContainerPad { get; }
+	RhythmAudioController AudioController { get; }
 }
 
-public class RhythmController : MonoBehaviour , IRhythmController
+public interface IRhythmStreak
+{
+	void IncreaseStreak(int index);
+	void ResetStreak();
+}
+
+[RequireComponent(typeof(UIRhythmController), typeof(RhythmAudioController))]
+public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 {
 	[SerializeField] private Text styleName; 
 	[SerializeField] private GameObject prefaBtn = null;
 	[SerializeField] private RectTransform container = null;
 	[SerializeField] private Transform table = null;
 	[SerializeField] private GameObject padPrefab = null;
+
+	private UIRhythmController uiRhythmController = null;
+	private RhythmAudioController audioController = null;
+	public RhythmAudioController AudioController { get { return this.audioController; } }
 	public GameObject PrefabPad { get{ return this.padPrefab; } }
 	public Material[] materials;
 
@@ -35,6 +47,7 @@ public class RhythmController : MonoBehaviour , IRhythmController
 	public GameObject PrefaBtn { get { return this.prefaBtn; } }
 
 	private RhythmContainer rhythmContainer = null;
+	private StreakContainer streakContainer = null;
 
 	private ObjectPool pool = null;
 	public ObjectPool Pool { get { return this.pool; } }
@@ -42,14 +55,19 @@ public class RhythmController : MonoBehaviour , IRhythmController
 	private void Awake()
 	{
 		SetObjectPool();
+		this.uiRhythmController = this.gameObject.GetComponent<UIRhythmController>();
+		this.audioController = this.gameObject.GetComponent<RhythmAudioController>();
 
-		this.rhythmContainer = new RhythmContainer (this as IRhythmController);
+		this.rhythmContainer = new RhythmContainer (this as IRhythmController, this as IRhythmStreak);
 		Lesson currentLesson = this.rhythmContainer.CurrentLesson;
-		this.styleName.text = currentLesson.name;
+		this.uiRhythmController.SetStyleNameText(currentLesson.name);
 	
 		BeatCounter beatCounter = this.gameObject.GetComponent<BeatCounter>();
 		if(beatCounter == null) { throw new NullReferenceException("Missing IBeatCounter"); }
 		beatCounter.Init(currentLesson.rhythm.bar);
+
+		this.streakContainer = new StreakContainer();
+		this.uiRhythmController.SetStreakText(this.streakContainer.StreakCount.ToString());
 	}
 
 	private void OnDestroy()
@@ -70,6 +88,29 @@ public class RhythmController : MonoBehaviour , IRhythmController
 		this.pool = ObjectPool.Instance;
 		this.pool.AddToPool(this.padPrefab, 10, this.transform);
 	}
+
+	#region IRhythmStreak implementation
+
+	public void IncreaseStreak (int index)
+	{
+		int streakCounter = this.streakContainer.IncreaseStreak();
+		this.uiRhythmController.SetStreakText(streakCounter.ToString());
+
+		this.audioController.PlayClipSuccess(index);
+	}
+
+	public void ResetStreak ()
+	{
+		int streakCounter = this.streakContainer.ResetStreak();
+		if(streakCounter != 0) 
+		{
+			throw new Exception("Streak not 0 on StreakReset");
+		}
+		this.uiRhythmController.SetStreakText(streakCounter.ToString());
+		this.audioController.PlayBuzz();
+	}
+
+	#endregion
 }
 
 [Serializable]
@@ -77,12 +118,15 @@ public class RhythmContainer
 {
 	private Color[] btnColor = { Color.yellow, Color.blue, Color.green, Color.magenta };
 	private IRhythmController rhythmController = null;
+	private IRhythmStreak rhythmStreak = null;
 	private Lesson currentLesson = null;
 	public Lesson CurrentLesson{ get { return this.currentLesson; } }
 
-	public RhythmContainer(IRhythmController rhythmController)
+	public RhythmContainer(IRhythmController rhythmController, IRhythmStreak rhythmStreak)
 	{
 		this.rhythmController = rhythmController;
+		this.rhythmStreak = rhythmStreak;
+
 		this.currentLesson = Save.DeserializeFromPlayerPrefs<Lesson> (ConstString.CurrentData);
 
 		IEnumerable<IPadController> pcs = CreateButtonsWithCurrentLesson ();
@@ -92,6 +136,7 @@ public class RhythmContainer
 	private IEnumerable<IPadController> CreateButtonsWithCurrentLesson()
 	{
 		int amount = this.currentLesson.rhythm.beat.Length;
+		this.rhythmController.AudioController.Init(amount);
 		float scaleX = 10f / (float)amount; 
 		float posX = -5f + scaleX / 2f;
 		IList<IPadController> list = new List<IPadController>();
@@ -105,7 +150,7 @@ public class RhythmContainer
 			CreateEndCube (scaleX, posX, i);
 			GameObject newObj = CreateStartCube (scaleX, posX, i);
 			PadController pc = newObj.AddComponent<PadController> ();
-			pc.Init(this.rhythmController, 
+			pc.Init(this.rhythmController, this.rhythmStreak, i,
 				this.currentLesson.rhythm.beat[i].bpms,
 				this.currentLesson.rhythm.bar,
 				this.rhythmController.Pool,
@@ -132,6 +177,7 @@ public class RhythmContainer
 		newCube.transform.localPosition = new Vector3 (tempX,0f,posY);
 		return newCube;
 	}
+
 	private void CreateEndCube(float scaleX, float posX, int i)
 	{
 		GameObject newCube = UnityEngine.GameObject.CreatePrimitive (PrimitiveType.Cube);
@@ -157,6 +203,24 @@ public class RhythmContainer
 		float tempX = posX + (float)i * scaleX; 
 		newCube.transform.localPosition = new Vector3 (tempX,0f,20.0f);
 		return newCube;
+	}
+}
+
+[Serializable]
+public class StreakContainer
+{
+	public int StreakCount { get; private set;}
+	public StreakContainer(){}
+
+	public int IncreaseStreak()
+	{
+		this.StreakCount++;
+		return this.StreakCount;
+	}
+	public int ResetStreak()
+	{
+		this.StreakCount = 0;
+		return this.StreakCount;
 	}
 }
 

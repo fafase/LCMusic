@@ -6,6 +6,7 @@ public interface IPadMovement
 {
 	void HandleChangeBpm (BpmArg bpmArg);
 	void InitPadMovement(IPadController newPadCtrl, Color color, Transform containerPad);
+	void TapOnPadSuccessful();
 }
 public class PadMovementController : MonoBehaviour, IPadMovement, IPoolObject
 {
@@ -49,13 +50,18 @@ public class PadMovementController : MonoBehaviour, IPadMovement, IPoolObject
 		this.transform.position = position;
 	}
 
+	public void TapOnPadSuccessful()
+	{
+		this.padMovement.TapOnPadSuccessful();
+	}
+
 	private void OnTriggerEnter(Collider col)
 	{
 		if(this.padMovement.CollisionEnterWithEndPad(col) == true)
 		{
 			// send message to PadController that entered
 			if(this.padCtrl == null) { return; }
-			this.padCtrl.SetEndPadCollisionEnter();
+			this.padCtrl.SetEndPadCollisionEnter(this as IPadMovement);
 		}
 	}
 
@@ -65,7 +71,7 @@ public class PadMovementController : MonoBehaviour, IPadMovement, IPoolObject
 		{
 			// Send message to PadController that exited
 			if(this.padCtrl == null){ return; }
-			this.padCtrl.SetEndPadCollisionExit();
+			this.padCtrl.SetEndPadCollisionExit(this as IPadMovement);
 		}
 	}
 }
@@ -92,6 +98,12 @@ public class PadMovementContainer
 	public void ChangeBpm(float newBpm)
 	{
 		this.speed = newBpm;
+	}
+
+	public void TapOnPadSuccessful()
+	{
+		GameObject go = this.gameObject;
+		this.pool.PushToPool(ref go, true, this.containerPad);
 	}
 
 	public bool CollisionEnterWithEndPad(Collider col)
