@@ -28,14 +28,9 @@ public class PadController : MonoBehaviour , IPadController
 	private float [] bpms = null;
 	private int currentIndex = 0;
 
-	private float timer = 0f;
-	private float count = 0f;
-
 	private ObjectPool pool = null;
 	private Transform container = null;
 	private GameObject prefab = null;
-
-	private bool isPadInside = false;
 
 	private IPadMovement currentPadMovement = null;
 	private int index = -1;
