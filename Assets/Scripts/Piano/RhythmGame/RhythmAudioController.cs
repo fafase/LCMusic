@@ -29,6 +29,7 @@ public class RhythmAudioController : MonoBehaviour {
 		}
 		this.buzzSource = audioObject.AddComponent<AudioSource>();
 		this.buzzSource.playOnAwake = false;
+		this.buzzSource.volume = 0.1f;
 		this.buzzSource.clip = this.buzzClip;
 
 		switch(amount)

@@ -47,6 +47,7 @@ public class ScrollRectSnap : MonoBehaviour, IScrollRectSnap
         }
         if (this.bttn == null) { throw new EmptyCollectionException("Scroll buttons"); }
         this.scrollRectContainer = new ScrollRectContainer(this as IScrollRectSnap);
+		this.scrollRectContainer.RunUpdate(panel.anchoredPosition.x, SetPanel);
     }
 
     private void Update()
