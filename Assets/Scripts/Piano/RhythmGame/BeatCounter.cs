@@ -9,6 +9,9 @@ public interface IBeatCounter
 {
 	float BarLength { get; } 
 	float Bpm { get; }
+	void SetBeatCounterRunning(bool value);
+	void Init(float newBarLength);
+	void SetBpm(int value);
 }
 
 public interface IMetronome
@@ -22,12 +25,11 @@ public interface IMetronome
 [RequireComponent(typeof(AudioSource))]
 public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 {
-	[SerializeField] private Text bpmText = null;
 	IEnumerable <IPadController> padCtrls = null;
 	private AudioSource audioSource = null;
 	private MetronomeContainer metronome = null; 
 	private BeatCounterContainer beatCounter = null;
-
+	private bool isGameRunning = false;
 	private float barLength = 0.0f;
 	public float BarLength { get { return this.barLength; } }
 
@@ -53,14 +55,12 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 
 	private void Awake()
 	{
-		if (this.bpmText == null)  { throw new NullReferenceException ("Missing bpmText"); }
 		this.audioSource = this.gameObject.GetComponent<AudioSource> ();
 	}
 
 	public void Init(float newBarLength)
 	{
 		this.metronome = new MetronomeContainer ();
-		this.bpmText.text = ((int)this.metronome.Bpm).ToString ();
 		this.barLength = newBarLength;
 		this.beatCounter = new BeatCounterContainer(this as IBeatCounter);
 	}
@@ -68,12 +68,13 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 	private void Update()
 	{
 		UpdateMetronome();
+		if(this.isGameRunning == false){ return; }
 		UpdateBeat();
 	}
 
 	public void SetBpm(int value)
 	{
-		this.bpmText.text = ((int)this.metronome.SetBpm (value)).ToString ();
+		this.metronome.SetBpm (value);
 		OnChangeBpm (new BpmArg(this.Bpm));
 	}
 
@@ -102,6 +103,10 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 	}
 
 	public void GetPadControllers(IEnumerable<IPadController> pcs) { this.padCtrls = pcs; }
+	public void SetBeatCounterRunning(bool value)
+	{
+		this.isGameRunning = value;
+	}
 }
 
 [Serializable]

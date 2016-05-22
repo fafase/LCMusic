@@ -16,6 +16,9 @@ public interface IRhythmController
 	GameObject PrefabPad { get; }
 	Transform ContainerPad { get; }
 	RhythmAudioController AudioController { get; }
+	void SetUI(string uiText, int bpm);
+	void SetChallenges(int initialBpm);
+	void ResetRhythmGame();
 }
 
 public interface IRhythmStreak
@@ -23,11 +26,10 @@ public interface IRhythmStreak
 	void IncreaseStreak(int index);
 	void ResetStreak();
 }
-
-[RequireComponent(typeof(UIRhythmController), typeof(RhythmAudioController), typeof(RhythmInputController))]
+[RequireComponent(typeof(UIRhythmController))]
+[RequireComponent( typeof(RhythmAudioController), typeof(RhythmInputController), typeof(RhythmChallengeController))]
 public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 {
-	[SerializeField] private Text styleName; 
 	[SerializeField] private GameObject prefaBtn = null;
 	[SerializeField] private RectTransform container = null;
 	[SerializeField] private Transform table = null;
@@ -52,22 +54,41 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 	private ObjectPool pool = null;
 	public ObjectPool Pool { get { return this.pool; } }
 
+	private IBeatCounter beatCounter = null;
+	private RhythmInputController inputController = null;
+
+	private RhythmChallengeController challengeController = null;
+	private Lesson currentLesson = null;
+
 	private void Awake()
 	{
 		SetObjectPool();
+
 		this.uiRhythmController = this.gameObject.GetComponent<UIRhythmController>();
 		this.audioController = this.gameObject.GetComponent<RhythmAudioController>();
+		this.inputController = this.gameObject.GetComponent<RhythmInputController>();
+		this.challengeController = this.gameObject.GetComponent<RhythmChallengeController>();
+		this.inputController.enabled = false;
+		this.beatCounter = this.gameObject.GetComponent<IBeatCounter>();
+		if(beatCounter == null) { throw new NullReferenceException("Missing IBeatCounter"); }
 
 		this.rhythmContainer = new RhythmContainer (this as IRhythmController, this as IRhythmStreak);
+		IPadController [] pads = this.rhythmContainer.CreateButtonsWithCurrentLesson();
+		GetPadControllers(pads);
 		Lesson currentLesson = this.rhythmContainer.CurrentLesson;
-		this.uiRhythmController.SetStyleNameText(currentLesson.name);
-	
-		BeatCounter beatCounter = this.gameObject.GetComponent<BeatCounter>();
-		if(beatCounter == null) { throw new NullReferenceException("Missing IBeatCounter"); }
-		beatCounter.Init(currentLesson.rhythm.bar);
+		Rhythm rhythm = currentLesson.rhythm;
+		SetUI(rhythm.introText, rhythm.bpmChallenge[0]);
 
 		this.streakContainer = new StreakContainer();
+
 		this.uiRhythmController.SetStreakText(this.streakContainer.StreakCount.ToString());
+		this.uiRhythmController.SetStyleNameText(currentLesson.name);
+
+		this.beatCounter.Init(currentLesson.rhythm.bar);
+		this.beatCounter.SetBeatCounterRunning(false);
+		this.beatCounter.SetBpm(rhythm.bpmChallenge[0]);
+
+		this.challengeController.InitWithChallenges(rhythm.streakChallenge, rhythm.bpmChallenge);
 	}
 
 	private void OnDestroy()
@@ -82,7 +103,7 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 
 		beatCounter.GetPadControllers(pcs as IEnumerable<IPadController>);
 
-		this.gameObject.GetComponent<RhythmInputController>().Init(pcs);
+		this.inputController.Init(pcs);
 	}
 
 	private void SetObjectPool()
@@ -97,7 +118,7 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 	{
 		int streakCounter = this.streakContainer.IncreaseStreak();
 		this.uiRhythmController.SetStreakText(streakCounter.ToString());
-
+		this.challengeController.CheckCurrentChallenge(streakCounter);
 		this.audioController.PlayClipSuccess(index);
 	}
 
@@ -113,6 +134,28 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 	}
 
 	#endregion
+
+	public void StartRhythmGame()
+	{
+		this.beatCounter.SetBeatCounterRunning(true);	
+		this.inputController.enabled = true;
+	}
+
+	public void ResetRhythmGame()
+	{
+		this.beatCounter.SetBeatCounterRunning(false);	
+		this.inputController.enabled = false;
+	}
+
+	public void SetUI(string uiText, int bpm)
+	{
+		this.uiRhythmController.SetUI(uiText, bpm);
+	}
+
+	public void SetChallenges(int initialBpm)
+	{
+		this.beatCounter.SetBpm(initialBpm);
+	}
 }
 
 [Serializable]
@@ -130,12 +173,9 @@ public class RhythmContainer
 		this.rhythmStreak = rhythmStreak;
 
 		this.currentLesson = Save.DeserializeFromPlayerPrefs<Lesson> (ConstString.CurrentData);
-
-		IPadController [] pcs = CreateButtonsWithCurrentLesson ();
-		this.rhythmController.GetPadControllers(pcs);
 	}
 
-	private IPadController[] CreateButtonsWithCurrentLesson()
+	public IPadController[] CreateButtonsWithCurrentLesson()
 	{
 		int amount = this.currentLesson.rhythm.beat.Length;
 		this.rhythmController.AudioController.Init(amount);
@@ -159,7 +199,6 @@ public class RhythmContainer
 				this.rhythmController.PrefabPad, 
 				this.rhythmController.ContainerPad);
 			list.Add(pc as IPadController);
-			// btnObj.GetComponent<ButtonController>().InitWithPadController(pc);
 		}
 		return list.ToArray();
 	}

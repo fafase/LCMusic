@@ -5,10 +5,7 @@ using System.Collections.Generic;
 public class RootObject : IDisposable
 {
 	public Lesson [] lesson = null;
-	public RootObject()
-	{
-		
-	}
+	public RootObject() { }
 
 	public void Dispose()
 	{
@@ -41,6 +38,10 @@ public class Rhythm
 {
 	public Beat [] beat = null;
 	public float bar = 4.0f;
+	public string introText = null;
+	public int [] streakChallenge = null;
+	public int [] bpmChallenge = null;
+
 	public Rhythm() { }
 
 	public void Clean()
@@ -51,6 +52,9 @@ public class Rhythm
 			b.Clean();
 		}
 		this.beat = null;
+		this.introText = null;
+		this.bpmChallenge = null;
+		this.streakChallenge = null;
 	}
 }
 
