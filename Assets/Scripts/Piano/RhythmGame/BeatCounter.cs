@@ -65,11 +65,21 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 		this.beatCounter = new BeatCounterContainer(this as IBeatCounter);
 	}
 
+	private void SetUpdateBeat(object sender, EventArgs arg)
+	{
+		this.updateBeat = UpdateBeat;
+		RaiseBpm -= SetUpdateBeat;
+	}
+
+	Action updateBeat = null;
 	private void Update()
 	{
 		UpdateMetronome();
-		if(this.isGameRunning == false){ return; }
-		UpdateBeat();
+		//if(this.isGameRunning == false){ return; }
+		if(updateBeat != null) 
+		{
+			updateBeat();
+		}
 	}
 
 	public void SetBpm(int value)
@@ -105,7 +115,10 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 	public void GetPadControllers(IEnumerable<IPadController> pcs) { this.padCtrls = pcs; }
 	public void SetBeatCounterRunning(bool value)
 	{
-		this.isGameRunning = value;
+		if(value == true)
+		{
+			RaiseBpm += SetUpdateBeat;
+		}
 	}
 }
 
