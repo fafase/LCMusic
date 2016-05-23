@@ -118,7 +118,9 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 		if(value == true)
 		{
 			RaiseBpm += SetUpdateBeat;
+			return;
 		}
+		RaiseBpm -= SetUpdateBeat;
 	}
 }
 
