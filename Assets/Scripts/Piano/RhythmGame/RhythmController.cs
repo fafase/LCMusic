@@ -59,7 +59,7 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 
 	private RhythmChallengeController challengeController = null;
 	private Lesson currentLesson = null;
-
+	IPadController [] pads;
 	private void Awake()
 	{
 		SetObjectPool();
@@ -73,12 +73,14 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 		if(beatCounter == null) { throw new NullReferenceException("Missing IBeatCounter"); }
 
 		this.rhythmContainer = new RhythmContainer (this as IRhythmController, this as IRhythmStreak);
-		IPadController [] pads = this.rhythmContainer.CreateButtonsWithCurrentLesson();
+		this.pads = this.rhythmContainer.CreateButtonsWithCurrentLesson();
+
 		GetPadControllers(pads);
+
 		Lesson currentLesson = this.rhythmContainer.CurrentLesson;
 		Rhythm rhythm = currentLesson.rhythm;
 		SetUI(rhythm.introText, rhythm.bpmChallenge[0]);
-
+		foreach(IPadController pad in pads){ pad.SetBPM(rhythm.bpmChallenge[0]);}
 		this.streakContainer = new StreakContainer();
 
 		this.uiRhythmController.SetStreakText(this.streakContainer.StreakCount.ToString());
@@ -150,6 +152,7 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 	public void SetUI(string uiText, int bpm)
 	{
 		this.uiRhythmController.SetUI(uiText, bpm);
+		foreach(IPadController pad in this.pads){ pad.SetBPM(bpm);}
 	}
 
 	public void SetChallenges(int initialBpm)

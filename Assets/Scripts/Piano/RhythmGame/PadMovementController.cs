@@ -5,7 +5,7 @@ using System;
 public interface IPadMovement
 {
 	void HandleChangeBpm (BpmArg bpmArg);
-	void InitPadMovement(IPadController newPadCtrl, Color color, Transform containerPad);
+	void InitPadMovement(IPadController newPadCtrl, Color color, Transform containerPad, float speed);
 	void TapOnPadSuccessful();
 }
 public class PadMovementController : MonoBehaviour, IPadMovement, IPoolObject
@@ -18,11 +18,12 @@ public class PadMovementController : MonoBehaviour, IPadMovement, IPoolObject
 	private IPadController padCtrl = null;
 	#endregion
 
-	public void InitPadMovement(IPadController newPadCtrl, Color color, Transform newContainerPad)
+	public void InitPadMovement(IPadController newPadCtrl, Color color, Transform newContainerPad, float speed)
 	{
 		this.padCtrl = newPadCtrl;
 		this.gameObject.GetComponent<MeshRenderer>().material.color = color;
 		this.padMovement.SetPoolItem(newContainerPad);
+		this.padMovement.SetBpmOnPad(speed);
 	}
 
 	private PadMovementContainer padMovement = null;
@@ -40,7 +41,7 @@ public class PadMovementController : MonoBehaviour, IPadMovement, IPoolObject
 
 	public void HandleChangeBpm( BpmArg bpmArg)
 	{
-		this.padMovement.ChangeBpm (bpmArg.bpm);
+		this.padMovement.SetBpmOnPad (bpmArg.bpm);
 	}
 
 	private void SetPosition()
@@ -78,7 +79,7 @@ public class PadMovementController : MonoBehaviour, IPadMovement, IPoolObject
 [Serializable]
 public class PadMovementContainer
 {
-	private float speed = 60f;			// Level always starts on 60
+	private float speed = 60f;			
 	public float Speed { get { return this.speed / 60f; } }
 	private GameObject gameObject = null;
 	private ObjectPool pool = null;
@@ -95,7 +96,7 @@ public class PadMovementContainer
 		this.containerPad = newContainerPad;	
 	}
 
-	public void ChangeBpm(float newBpm)
+	public void SetBpmOnPad(float newBpm)
 	{
 		this.speed = newBpm;
 	}

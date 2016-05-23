@@ -139,8 +139,7 @@ public class BeatCounterContainer
 public class MetronomeContainer
 {
 	private Stopwatch timer = null;
-	private float bpm = 60f;
-	public float Bpm { get { return this.bpm; } }
+	public float Bpm { get; private set; }
 
 	private float counter = 0;
 	public float Counter { get { return this.counter; } }
@@ -166,13 +165,9 @@ public class MetronomeContainer
 
 	public float SetBpm(int value)
 	{
-		if (Mathf.Abs (value) > 1) 
-		{
-			return this.counter;
-		}
-		float temp = this.bpm + value;
-		this.bpm = Mathf.Clamp (temp, 20f, 200f);
-		return this.bpm;
+		this.Bpm = Mathf.Clamp (value, 20f, 200f);
+		SetCounter();
+		return this.Bpm;
 	}
 
 	public float elapsedTime;
@@ -184,7 +179,7 @@ public class MetronomeContainer
 		return true;
 	}
 
-	public void SetCounter() { this.counter = 60f / this.bpm; }
+	public void SetCounter() { this.counter = 60f / this.Bpm; }
 }
 
 public class BpmArg : EventArgs

@@ -13,6 +13,7 @@ public interface IPadController
 	void SetEndPadCollisionEnter(IPadMovement padMovement);
 	void SetEndPadCollisionExit(IPadMovement padMovement);
 	void OnPointerEnter();
+	void SetBPM(float value);
 }
 
 public class PadController : MonoBehaviour , IPadController
@@ -35,7 +36,8 @@ public class PadController : MonoBehaviour , IPadController
 	private IPadMovement currentPadMovement = null;
 	private int index = -1;
 
-	public void Init(IRhythmController newRhythmController, IRhythmStreak newRhythmStreak,int newIndex, float [] newBpms, float newBarBeat, ObjectPool newPool, GameObject newPrefab, Transform newContainer)
+	public void Init(IRhythmController newRhythmController, IRhythmStreak newRhythmStreak,
+		int newIndex, float [] newBpms, float newBarBeat, ObjectPool newPool, GameObject newPrefab, Transform newContainer)
 	{
 		this.rhythmController = newRhythmController;
 		this.rhythmStreak = newRhythmStreak;
@@ -75,7 +77,7 @@ public class PadController : MonoBehaviour , IPadController
 		GameObject obj = this.pool.PopFromPool(this.prefab, false, true, this.container);
 		obj.transform.position = this.transform.position;
 		IPadMovement padMovement = obj.GetComponent<IPadMovement>();
-		padMovement.InitPadMovement(this as IPadController, this.selfColor, this.rhythmController.ContainerPad);
+		padMovement.InitPadMovement(this as IPadController, this.selfColor, this.rhythmController.ContainerPad, this.bpm);
 	}
 
 	public void SetEndPadCollisionEnter(IPadMovement padMovement)
@@ -99,5 +101,10 @@ public class PadController : MonoBehaviour , IPadController
 			return;
 		}
 		this.rhythmStreak.ResetStreak();
+	}
+	float bpm = 0f;
+	public void SetBPM(float value)
+	{
+		this.bpm = value;
 	}
 }
