@@ -22,23 +22,9 @@ public class RhythmChallengeController : MonoBehaviour , IRhythmChallenge
 		this.challengeContainer.InitWithChallenges(newStreakChallenges, bpms);
 	}
 
-	public void CheckCurrentChallenge(int currentStreak)
+	public int CheckCurrentChallenge(int currentStreak)
 	{
-		RhythmChallengeContainer.ChallengeState cs = this.challengeContainer.CheckCurrentChallenge(currentStreak);
-		switch(cs)
-		{
-		case RhythmChallengeContainer.ChallengeState.None:
-			Debug.Log("None");
-			break;
-		case RhythmChallengeContainer.ChallengeState.CurrentChallenge:
-			this.rhythmController.SetUI(" Well done! \n To the next challenge. ", this.challengeContainer.CurrentBpm);
-			break;
-		case RhythmChallengeContainer.ChallengeState.FinalChallenge:
-			this.rhythmController.SetUI(" Well done! \n You made it. ", 0);
-			this.rhythmController.ResetRhythmGame();
-			Debug.Log("Final");
-			break;
-		}
+		return this.challengeContainer.CheckCurrentChallenge(currentStreak);
 	}
 }
 
@@ -65,16 +51,14 @@ public class RhythmChallengeContainer
 		this.currentChallenge = this.challenges[index];
 	}
 
-	public ChallengeState CheckCurrentChallenge(int currentStreak)
+	public int CheckCurrentChallenge(int currentStreak)
 	{
 		if(this.currentChallenge <= 0) { throw new System.Exception("Issue with current challenge"); } 
-		if(currentStreak < this.currentChallenge) { return ChallengeState.None; }
+		if(currentStreak < this.currentChallenge) { return -1; }
 		if(++index == this.challenges.Length)
 		{
-			return ChallengeState.FinalChallenge;
+			return 1;
 		}
-		return ChallengeState.CurrentChallenge;
+		return 0;
 	}
-
-	public enum ChallengeState{ None = -1, CurrentChallenge, FinalChallenge }
 }
