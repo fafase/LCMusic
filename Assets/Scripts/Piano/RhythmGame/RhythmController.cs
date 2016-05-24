@@ -134,9 +134,10 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 		}
 		this.audioController.PlayClipSuccess(index);
 	}
+
 	private void CleanActivePads()
 	{
-		IEnumerable<IPoolObject> objs = this.gameObject.GetComponentsInParent<IPoolObject>();
+		IPoolObject[] objs = this.gameObject.GetComponentsInChildren<IPoolObject>();
 		foreach(IPoolObject obj in objs)
 		{
 			GameObject o = obj.CurrentGO;
