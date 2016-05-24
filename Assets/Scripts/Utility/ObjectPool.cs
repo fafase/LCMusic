@@ -174,4 +174,5 @@ public interface IPoolObject
 {
 	GameObject Prefab{get;set;}
 	void Init();
+	GameObject CurrentGO{ get; }
 }

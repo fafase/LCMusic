@@ -79,8 +79,8 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 
 		Lesson currentLesson = this.rhythmContainer.CurrentLesson;
 		Rhythm rhythm = currentLesson.rhythm;
-		SetUI(rhythm.introText, rhythm.bpmChallenge[0]);
-		foreach(IPadController pad in pads){ pad.SetBPM(rhythm.bpmChallenge[0]);}
+		SetUI(rhythm.IntroText, rhythm.bpmChallenge);
+		foreach(IPadController pad in pads){ pad.SetBPM(rhythm.bpmChallenge);}
 		this.streakContainer = new StreakContainer();
 
 		this.uiRhythmController.SetStreakText(this.streakContainer.StreakCount.ToString());
@@ -88,7 +88,7 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 
 		this.beatCounter.Init(currentLesson.rhythm.bar);
 		this.beatCounter.SetBeatCounterRunning(false);
-		this.beatCounter.SetBpm(rhythm.bpmChallenge[0]);
+		this.beatCounter.SetBpm(rhythm.bpmChallenge);
 
 		this.challengeController.InitWithChallenges(rhythm.streakChallenge, rhythm.bpmChallenge);
 	}
@@ -126,18 +126,23 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 		case -1:
 			Debug.Log("None");
 			break;
-		case 0:
-			SetUI(" Well done! \n To the next challenge. ", (int)this.beatCounter.Bpm);
-			break;
 		case 1:
 			SetUI(" Well done! \n You made it. ", 0);
+			CleanActivePads();
 			ResetRhythmGame();
-			Debug.Log("Final");
 			break;
 		}
 		this.audioController.PlayClipSuccess(index);
 	}
-
+	private void CleanActivePads()
+	{
+		IEnumerable<IPoolObject> objs = this.gameObject.GetComponentsInParent<IPoolObject>();
+		foreach(IPoolObject obj in objs)
+		{
+			GameObject o = obj.CurrentGO;
+			this.pool.PushToPool(ref o, true, this.transform);
+		}
+	}
 	public void ResetStreak ()
 	{
 		int streakCounter = this.streakContainer.ResetStreak();

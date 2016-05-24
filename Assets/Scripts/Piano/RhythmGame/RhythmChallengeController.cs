@@ -16,7 +16,7 @@ public class RhythmChallengeController : MonoBehaviour , IRhythmChallenge
 		if(this.challengeContainer == null){ this.challengeContainer = new RhythmChallengeContainer(); }
 	}
 
-	public void InitWithChallenges( int [] newStreakChallenges, int [] bpms)
+	public void InitWithChallenges( int newStreakChallenges, int bpms)
 	{
 		if(this.challengeContainer == null) { this.challengeContainer = new RhythmChallengeContainer(); }
 		this.challengeContainer.InitWithChallenges(newStreakChallenges, bpms);
@@ -24,41 +24,30 @@ public class RhythmChallengeController : MonoBehaviour , IRhythmChallenge
 
 	public int CheckCurrentChallenge(int currentStreak)
 	{
-		return this.challengeContainer.CheckCurrentChallenge(currentStreak);
+		return this.challengeContainer.CheckWithChallenge(currentStreak);
 	}
 }
 
 [SerializeField]
 public class RhythmChallengeContainer
 {
-	private int [] challenges = null;
-	private int [] bpms = null;
-	private int currentChallenge = -1;
-	private int index = -1;
-
-	public int CurrentChallenge { get { return this.challenges[index]; } }
-	public int CurrentBpm { get { return this.bpms[index]; } }
+	public int CurrentChallenge { get; private set; }
+	public int CurrentBpm { get; private set; }
 
 	public RhythmChallengeContainer() { }
 
-	public void InitWithChallenges( int [] newChallenges, int [] newBpms)
+	public void InitWithChallenges( int newChallenge, int newBpm)
 	{
-		if(newChallenges == null || newChallenges.Length == 0) { throw new System.Exception("Issue with challenges"); }
-		if(newBpms == null || newBpms.Length == 0) { throw new System.Exception("Issue with newBpms"); }
-		this.bpms = newBpms;
-		this.challenges = newChallenges;
-		index = 0;
-		this.currentChallenge = this.challenges[index];
+		if(newChallenge <= 0) { throw new System.Exception("Issue with challenges"); }
+		if(newBpm <=0) { throw new System.Exception("Issue with newBpms"); }
+		this.CurrentBpm = newBpm;
+		this.CurrentChallenge = newChallenge;
 	}
 
-	public int CheckCurrentChallenge(int currentStreak)
+	public int CheckWithChallenge(int currentStreak)
 	{
-		if(this.currentChallenge <= 0) { throw new System.Exception("Issue with current challenge"); } 
-		if(currentStreak < this.currentChallenge) { return -1; }
-		if(++index == this.challenges.Length)
-		{
-			return 1;
-		}
-		return 0;
+		if(this.CurrentChallenge <= 0) { throw new System.Exception("Issue with current challenge"); } 
+		if(currentStreak < this.CurrentChallenge) { return -1; }
+		return 1;
 	}
 }

@@ -16,6 +16,7 @@ public class PadMovementController : MonoBehaviour, IPadMovement, IPoolObject
 
 	public GameObject Prefab { get; set; }
 	private IPadController padCtrl = null;
+	public GameObject CurrentGO{ get { return this.gameObject; } }
 	#endregion
 
 	public void InitPadMovement(IPadController newPadCtrl, Color color, Transform newContainerPad, float speed)

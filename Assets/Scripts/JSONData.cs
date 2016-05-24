@@ -39,8 +39,19 @@ public class Rhythm
 	public Beat [] beat = null;
 	public float bar = 4.0f;
 	public string introText = null;
-	public int [] streakChallenge = null;
-	public int [] bpmChallenge = null;
+	public int streakChallenge = 0;
+	public int bpmChallenge = 0;
+
+	public string IntroText
+	{ 
+		get 
+		{ 
+			return String.Format(
+				this.introText, 
+				this.streakChallenge,
+				this.bpmChallenge); 
+		} 
+	}
 
 	public Rhythm() { }
 
@@ -53,8 +64,6 @@ public class Rhythm
 		}
 		this.beat = null;
 		this.introText = null;
-		this.bpmChallenge = null;
-		this.streakChallenge = null;
 	}
 }
 
