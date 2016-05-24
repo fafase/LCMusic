@@ -121,16 +121,11 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 		int streakCounter = this.streakContainer.IncreaseStreak();
 		this.uiRhythmController.SetStreakText(streakCounter.ToString());
 		int cs = this.challengeController.CheckCurrentChallenge(streakCounter);
-		switch(cs)
+		if(cs > 0)
 		{
-		case -1:
-			Debug.Log("None");
-			break;
-		case 1:
 			SetUI(" Well done! \n You made it. ", 0);
 			CleanActivePads();
 			ResetRhythmGame();
-			break;
 		}
 		this.audioController.PlayClipSuccess(index);
 	}
