@@ -18,8 +18,6 @@ public interface IMetronome
 {
 	event EventHandler <BpmBeatArg> RaiseBpm;
 	event EventHandler <BpmArg> RaiseChangeBpm;
-
-	float ElapsedTime { get; }
 }
 
 [RequireComponent(typeof(AudioSource))]
@@ -27,14 +25,14 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 {
 	IEnumerable <IPadController> padCtrls = null;
 	private AudioSource audioSource = null;
-	private MetronomeContainer metronome = null; 
-	private BeatCounterContainer beatCounter = null;
+	private Metronome metronome = null; 
 	private bool isGameRunning = false;
 	private float barLength = 0.0f;
 	public float BarLength { get { return this.barLength; } }
 
+	private Action updateBeat = null;
+
 	public float Bpm { get { return this.metronome.Bpm; } }
-	public float ElapsedTime { get{ return this.metronome.ElapsedTime; } }
 	public event EventHandler<BpmArg> RaiseChangeBpm;
 	protected void OnChangeBpm(BpmArg args)
 	{
@@ -60,26 +58,24 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 
 	public void Init(float newBarLength)
 	{
-		this.metronome = new MetronomeContainer ();
 		this.barLength = newBarLength;
-		this.beatCounter = new BeatCounterContainer(this as IBeatCounter);
+		this.metronome = new Metronome (this.barLength);
 	}
 
 	private void SetUpdateBeat(object sender, EventArgs arg)
 	{
 		this.updateBeat = UpdateBeat;
+		this.metronome.SetBarTimerOnStart();
 		RaiseBpm -= SetUpdateBeat;
 	}
-
-	Action updateBeat = null;
+		
 	private void Update()
 	{
-		UpdateMetronome();
-		//if(this.isGameRunning == false){ return; }
 		if(updateBeat != null) 
 		{
 			updateBeat();
 		}
+		UpdateMetronome();
 	}
 
 	public void SetBpm(int value)
@@ -90,16 +86,16 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 
 	private void UpdateMetronome()
 	{
-		if(this.metronome.UpdateMetronome(Time.deltaTime)== false) { return; }
+		if(this.metronome.SetBeatTimer(Time.deltaTime)== false) { return; }
 		this.audioSource.Play ();
 		OnBpm (new BpmBeatArg(this.barBeat++));			// Reset movement speed
 	}
 
 	private void UpdateBeat()
 	{
-		if(this.beatCounter.UpdateCurrentCounter(Time.deltaTime / this.metronome.Counter) == true)
+		if(this.metronome.SetBarTimer(Time.deltaTime) == true)
 		{
-			this.metronome.SetCounter();
+			this.metronome.SetBeatCounter();
 			foreach(IPadController pc in this.padCtrls)
 			{
 				pc.ResetBeat();
@@ -108,7 +104,7 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 		// Run all PadController
 		foreach(IPadController pc in this.padCtrls)
 		{
-			pc.CheckTimeForBeat(this.beatCounter.CurrentCounter);
+			pc.CheckTimeForBeat(this.metronome.BarTimer);
 		}
 	}
 
@@ -125,76 +121,71 @@ public class BeatCounter : MonoBehaviour , IBeatCounter, IMetronome
 }
 
 [Serializable]
-public class BeatCounterContainer
+public class Metronome
 {
-	private IBeatCounter beatCounter = null;
-	private float currentCounter = 0.0f;
-	public float CurrentCounter { get { return this.currentCounter; } }
-
-	public BeatCounterContainer (IBeatCounter beatCounter)
-	{
-		this.beatCounter = beatCounter;	
-	}
-
-	public bool UpdateCurrentCounter(float deltaTime)
-	{
-		this.currentCounter += deltaTime;
-		if(this.currentCounter >= this.beatCounter.BarLength)
-		{
-			this.currentCounter -=  this.beatCounter.BarLength;
-			return true;
-		}
-		return false;
-	}
-
-	public void ResetCurrentCounter() { this.currentCounter = 0.0f; }
-}
-
-[Serializable]
-public class MetronomeContainer
-{
-	private Stopwatch timer = null;
 	public float Bpm { get; private set; }
+	private float barLength = 0f;
 
-	private float counter = 0;
-	public float Counter { get { return this.counter; } }
+	private float beatTimer = 0f;
+	private float beatCounter = 0f;
+	public float BeatCounter { get { return this.beatCounter; } }
 
 	/// <summary>
-	/// Gets the elapsed time in seconds.
+	/// Provide the elapsed time in the current bar (from 0 to bar length)
 	/// </summary>
-	/// <value>The elapsed time.</value>
-	public float ElapsedTime
-	{ 
-		get
-		{ 
-			return (float)this.timer.ElapsedMilliseconds / 1000f;
-		} 
-	}
+	/// <value>The bar timer.</value>
+	public float BarTimer { get; private set;}
+	private float barCounter = 0f;
 
-	public MetronomeContainer ()
+	public Metronome (float barLength)
 	{
-		this.timer = new Stopwatch ();
-		this.timer.Start ();
-		SetCounter ();
+		this.barLength = barLength;
+		SetBeatCounter ();
+		SetBarCounter();
 	}
 
 	public float SetBpm(int value)
 	{
 		this.Bpm = Mathf.Clamp (value, 20f, 200f);
-		SetCounter();
+		SetBeatCounter();
+		SetBarCounter();
 		return this.Bpm;
 	}
 
-	public float elapsedTime;
 	public bool UpdateMetronome(float deltaTime)
 	{
-		elapsedTime += deltaTime;
-		if (elapsedTime < (this.Counter)) { return false; }
-		elapsedTime -= this.Counter; 
+		SetBarTimer(deltaTime);
+		return SetBeatTimer(deltaTime);
+	}
+	public bool SetBeatTimer(float deltaTime)
+	{
+		this.beatTimer += deltaTime;
+		if (this.beatTimer < (this.BeatCounter)) { return false; }
+		this.beatTimer -= this.BeatCounter; 
+		return true;
+	}
+	public bool SetBarTimer(float deltaTime)
+	{
+		this.BarTimer += deltaTime;
+		if(this.BarTimer < this.barCounter){ return false; }
+		this.BarTimer -= this.barCounter;
 		return true;
 	}
 
-	public void SetCounter() { this.counter = 60f / this.Bpm; }
+	public void SetBeatCounter() { this.beatCounter = 60f / this.Bpm; }
+	public void SetBarCounter()
+	{
+		this.barCounter = 60f / this.Bpm * this.barLength;
+	}
+
+	public void SetBarTimerOnStart()
+	{
+		UnityEngine.Debug.Log(this.beatTimer);
+		float temp = this.beatTimer - (float)Math.Truncate(this.beatTimer);
+		UnityEngine.Debug.Log(temp);
+		this.BarTimer = temp;
+		UnityEngine.Debug.Break();
+	}
 }
 
 public class BpmArg : EventArgs

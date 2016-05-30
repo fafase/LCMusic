@@ -21,8 +21,7 @@ public class PadController : MonoBehaviour , IPadController
 	private IRhythmController rhythmController = null;
 	private IRhythmStreak rhythmStreak = null;
 
-	private float barBeat = 4f;
-	public float BarBeat{ get { return this.barBeat; } }
+	public float BarBeat{ get; private set;}
 
 	private Color selfColor = Color.black;
 
@@ -35,6 +34,7 @@ public class PadController : MonoBehaviour , IPadController
 
 	private IPadMovement currentPadMovement = null;
 	private int index = -1;
+	private float bpm = 0f;
 
 	public void Init(IRhythmController newRhythmController, IRhythmStreak newRhythmStreak,
 		int newIndex, float [] newBpms, float newBarBeat, ObjectPool newPool, GameObject newPrefab, Transform newContainer)
@@ -43,7 +43,7 @@ public class PadController : MonoBehaviour , IPadController
 		this.rhythmStreak = newRhythmStreak;
 		this.index = newIndex;
 		this.bpms = newBpms;
-		this.barBeat = newBarBeat;
+		this.BarBeat = newBarBeat;
 		this.selfColor = this.gameObject.GetComponent<MeshRenderer> ().material.color;
 		this.pool = newPool;
 		this.prefab = newPrefab;
@@ -102,7 +102,7 @@ public class PadController : MonoBehaviour , IPadController
 		}
 		this.rhythmStreak.ResetStreak();
 	}
-	float bpm = 0f;
+
 	public void SetBPM(float value)
 	{
 		this.bpm = value;

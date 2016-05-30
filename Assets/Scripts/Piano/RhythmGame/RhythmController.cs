@@ -4,6 +4,8 @@ using System;
 using LCHelper;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 public interface IRhythmController 
 {
@@ -280,6 +282,59 @@ public class StreakContainer
 	{
 		this.StreakCount = 0;
 		return this.StreakCount;
+	}
+}
+
+public static class PlayerPrefsWithAds
+{
+	public static bool CheckPlayerPrefsForLessonWithId(string id)
+	{
+		if(PlayerPrefs.HasKey(id) == false){ return false; }
+		return true;
+	}
+
+	public static void SetPlayerPrefsForLessonWithId(string id, DateTime dateTime)
+	{
+		BinaryFormatter bf = new BinaryFormatter();
+		MemoryStream ms = new MemoryStream();
+		LessonStorage ls = new LessonStorage(id, dateTime);
+		bf.Serialize(ms, ls as LessonStorage);
+		PlayerPrefs.SetString(id,Convert.ToBase64String(ms.GetBuffer()));
+	}
+
+	public static bool CheckDateTimeForLessonWithId(string id)
+	{
+		if(CheckPlayerPrefsForLessonWithId(id) == false)
+		{
+			return false;
+		}
+		string data = PlayerPrefs.GetString(id,null);
+		if(data == null) { return false; }
+		BinaryFormatter bf = new BinaryFormatter();
+		MemoryStream ms = new MemoryStream(Convert.FromBase64String(data));
+		LessonStorage ls = bf.Deserialize(ms) as LessonStorage;
+		DateTime lessonTime = ls.LessonDateTime;
+		TimeSpan ts = DateTime.Now.Subtract(lessonTime);
+		if(ts.TotalMinutes > 120f)
+		{
+			PlayerPrefs.DeleteKey(id);
+			return false;
+		}
+		return true;
+	}
+
+	[Serializable]
+	class LessonStorage
+	{
+		public readonly string id = null;
+		public readonly string dateTime = null;
+		public DateTime LessonDateTime{ get { return DateTime.Parse(this.dateTime); } }
+
+		public LessonStorage(string id, DateTime dateTime)
+		{
+			this.id = id;
+			this.dateTime = dateTime.ToString();
+		}
 	}
 }
 
