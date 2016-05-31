@@ -2,13 +2,30 @@
 using System.Collections;
 using System;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public interface IPianoKeyController
 {
+	event EventHandler<KeyDownEventArg> RaiseKeyDown;
     void PlayPianoKey(float pitch);
 	void StopPianoKey();
     float Pitch { get; }
+	Color OriginalColor { get; }
+	Image PianoKeyImage { get; }
 }
+
+public class KeyDownEventArg:System.EventArgs
+{
+	public readonly Button currentButton = null;
+	public readonly IPianoKeyController pianoKeyCtrl = null;
+	public KeyDownEventArg(IPianoKeyController pianoKeyCtrl, Button button)
+	{
+		this.pianoKeyCtrl = pianoKeyCtrl;
+		this.currentButton = button;
+	}
+}
+
+[RequireComponent(typeof(Button), typeof(Image))]
 public class PianoKeyController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler ,IPianoKeyController
 {
     [SerializeField]
@@ -21,16 +38,29 @@ public class PianoKeyController : MonoBehaviour, IPointerEnterHandler, IPointerE
     private AudioSource audioSource = null;
     private PianoKey pianoKey = null;
 
-    private void Start()
+	private Button currentButton = null;
+	private Color originalColor = Color.white;
+	public Color OriginalColor { get { return this.originalColor; } }
+
+	private Image pianoKeyImage = null;
+	public Image PianoKeyImage { get { return this.pianoKeyImage; } }
+
+    private void Awake()
     {
         this.audioSource = this.gameObject.AddComponent<AudioSource>();
         this.audioSource.clip = this.clip;
         this.pianoKey = new PianoKey(this as IPianoKeyController);
+		this.currentButton = this.gameObject.GetComponent<Button>();
+		this.pianoKeyImage = this.gameObject.GetComponent<Image>();
+		this.originalColor = this.pianoKeyImage.color;
+		Debug.Log(this.originalColor);
+
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         this.pianoKey.PlayPianoKey();
+		OnKeyDown(new KeyDownEventArg(this as IPianoKeyController, this.currentButton));
     }
 
 	public void OnPointerExit (PointerEventData eventData)
@@ -48,6 +78,13 @@ public class PianoKeyController : MonoBehaviour, IPointerEnterHandler, IPointerE
 	public void StopPianoKey()
 	{
 		this.audioSource.Stop();
+	}
+	public event EventHandler<KeyDownEventArg> RaiseKeyDown;
+	protected void OnKeyDown(KeyDownEventArg arg){
+		if(RaiseKeyDown != null)
+		{
+			RaiseKeyDown(this, arg);
+		}
 	}
 }
 
