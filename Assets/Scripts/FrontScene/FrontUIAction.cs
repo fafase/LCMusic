@@ -13,6 +13,5 @@ public class FrontUIAction : MonoBehaviour , IUIAction
     {
         SceneManager.LoadScene(scene);
     }
-
     public void ShowSequence() { }
 }

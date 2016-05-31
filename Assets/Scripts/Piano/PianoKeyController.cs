@@ -6,9 +6,10 @@ using UnityEngine.EventSystems;
 public interface IPianoKeyController
 {
     void PlayPianoKey(float pitch);
+	void StopPianoKey();
     float Pitch { get; }
 }
-public class PianoKeyController : MonoBehaviour, IPointerEnterHandler ,IPianoKeyController
+public class PianoKeyController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler ,IPianoKeyController
 {
     [SerializeField]
     private AudioClip clip;
@@ -31,12 +32,23 @@ public class PianoKeyController : MonoBehaviour, IPointerEnterHandler ,IPianoKey
     {
         this.pianoKey.PlayPianoKey();
     }
+
+	public void OnPointerExit (PointerEventData eventData)
+	{
+		this.pianoKey.StopPianoKey();
+	}
+
     public void PlayPianoKey(float pitch)
     {
         this.audioSource.Stop();
         this.audioSource.pitch = pitch;
         this.audioSource.Play();
     }
+
+	public void StopPianoKey()
+	{
+		this.audioSource.Stop();
+	}
 }
 
 [Serializable]
@@ -55,4 +67,9 @@ public class PianoKey
     {
         this.pianoKey.PlayPianoKey(this.pitch);
     }
+
+	public void StopPianoKey()
+	{
+		this.pianoKey.StopPianoKey();
+	}
 }
