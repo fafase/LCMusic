@@ -36,13 +36,16 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 	[SerializeField] private RectTransform container = null;
 	[SerializeField] private Transform table = null;
 	[SerializeField] private GameObject padPrefab = null;
+	[SerializeField] private GameObject pauseObject = null;
 
 	private UIRhythmController uiRhythmController = null;
 	private RhythmAudioController audioController = null;
 	public RhythmAudioController AudioController { get { return this.audioController; } }
 	public GameObject PrefabPad { get{ return this.padPrefab; } }
-	public Material[] materials;
 
+	private IPause pause = null;
+
+	public Material[] materials;
 	public Material [] Materials { get { return this.materials; } }
 
 	public RectTransform Container { get { return this.container; }}
@@ -61,9 +64,13 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 
 	private RhythmChallengeController challengeController = null;
 	private Lesson currentLesson = null;
-	IPadController [] pads;
+	private IPadController [] pads = null;
+
 	private void Awake()
 	{
+		if(this.pauseObject == null){ throw new NullReferenceException("Missing Pause object ref"); } 
+		this.pause = this.pauseObject.GetComponent<IPause>();
+		this.pause.RaisePause += Pause_RaisePause;
 		SetObjectPool();
 
 		this.uiRhythmController = this.gameObject.GetComponent<UIRhythmController>();
@@ -98,6 +105,15 @@ public class RhythmController : MonoBehaviour , IRhythmController, IRhythmStreak
 	private void OnDestroy()
 	{
 		this.pool.DeletePool();
+		if(this.pause != null)
+		{
+			this.pause.RaisePause -= Pause_RaisePause;
+		}
+	}
+
+	private void Pause_RaisePause (object sender, PauseEventArgs e)
+	{
+		Time.timeScale = (e.isPaused == true) ? 0.0f : 1.0f ;
 	}
 
 	public void GetPadControllers(IPadController [] pcs)

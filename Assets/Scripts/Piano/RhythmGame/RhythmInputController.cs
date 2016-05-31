@@ -1,16 +1,37 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class RhythmInputController : MonoBehaviour 
 {
-
+	[SerializeField] GameObject pauseObject = null;
+	private IPause pause = null;
 	private IPadController[] padCtrls = null;
 	private float screenHeight = 0.0f;
+	private bool isPaused = false;
 
 	private void Awake()
 	{
+		if(this.pauseObject == null){ throw new NullReferenceException("Missing Pause object ref"); }
+		this.pause = this.pauseObject.GetComponent<IPause>();
+		this.pause.RaisePause += Pause_RaisePause;
+
 		this.screenHeight = Screen.width * 0.3f;
 	}
+
+	private void OnDestroy()
+	{
+		if(this.pause != null)
+		{
+			this.pause.RaisePause -= Pause_RaisePause;
+		}
+	}
+
+	private void Pause_RaisePause (object sender, PauseEventArgs e)
+	{
+		this.isPaused = e.isPaused;
+	}
+
 	public void Init(IPadController[] pads)	
 	{
 		this.padCtrls = pads;
@@ -18,6 +39,7 @@ public class RhythmInputController : MonoBehaviour
 
 	void Update () 
 	{
+		if(this.isPaused == true){ return; }
 		int index = -1;
 		#if UNITY_EDITOR
 		if(Input.GetMouseButtonDown(0) == true)

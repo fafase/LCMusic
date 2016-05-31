@@ -180,11 +180,8 @@ public class Metronome
 
 	public void SetBarTimerOnStart()
 	{
-		UnityEngine.Debug.Log(this.beatTimer);
 		float temp = this.beatTimer - (float)Math.Truncate(this.beatTimer);
-		UnityEngine.Debug.Log(temp);
 		this.BarTimer = temp;
-		UnityEngine.Debug.Break();
 	}
 }
 
