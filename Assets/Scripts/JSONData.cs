@@ -22,6 +22,8 @@ public class Lesson
 	public string name = null;
 	public bool available = false;
 	public Rhythm rhythm = null;
+	public Warmup warmup = null;
+	public string [] description = null;
 
 	public Lesson (){}
 
@@ -30,6 +32,13 @@ public class Lesson
 		this.name = null;
 		this.rhythm.Clean();
 		this.rhythm = null;
+		this.warmup.Clean();
+		this.warmup = null;
+		for(int i = 0; i < this.description.Length; i++)
+		{
+			this.description[i] = null;
+		}
+		this.description = null;
 	}
 }
 
@@ -74,6 +83,17 @@ public class Beat
 	public void Clean()
 	{
 		this.bpms = null;
+	}
+}
+
+[Serializable]
+public class Warmup
+{
+	public int [] keylist = null;
+
+	public void Clean()
+	{
+		this.keylist = null;
 	}
 }
 

@@ -26,7 +26,7 @@ public class KeyDownEventArg:System.EventArgs
 }
 
 [RequireComponent(typeof(Button), typeof(Image))]
-public class PianoKeyController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler ,IPianoKeyController
+public class PianoKeyController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler ,IPianoKeyController
 {
     [SerializeField]
     private AudioClip clip;
@@ -57,7 +57,7 @@ public class PianoKeyController : MonoBehaviour, IPointerEnterHandler, IPointerE
 
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public void OnPointerDown(PointerEventData eventData)
     {
 		if(this.isKeyDown == true){ return; }
 		this.isKeyDown = true;
@@ -65,7 +65,7 @@ public class PianoKeyController : MonoBehaviour, IPointerEnterHandler, IPointerE
 		OnKeyDown(new KeyDownEventArg(this as IPianoKeyController, this.currentButton));
     }
 
-	public void OnPointerExit (PointerEventData eventData)
+	public void OnPointerUp (PointerEventData eventData)
 	{
 		this.isKeyDown = false;
 		this.pianoKey.StopPianoKey();

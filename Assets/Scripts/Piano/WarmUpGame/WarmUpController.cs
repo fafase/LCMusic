@@ -3,16 +3,17 @@ using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System;
+using LCHelper;
 
 public interface IWarmUp
 {
-	IEnumerable<MonoBehaviour> KeyList { get; }
+	IEnumerable<MonoBehaviour> Keyboard { get; }
 	void SetNewKey(IPianoKeyController previous, IPianoKeyController next);
 }
 public class WarmUpController : MonoBehaviour , IWarmUp
 {
 	public MonoBehaviour [] buttons;
-	public IEnumerable<MonoBehaviour> KeyList { get{ return this.buttons as IEnumerable<MonoBehaviour>; } }
+	public IEnumerable<MonoBehaviour> Keyboard { get{ return this.buttons as IEnumerable<MonoBehaviour>; } }
 
 	public Color onColor = Color.blue;
 
@@ -43,24 +44,27 @@ public class WarmUpController : MonoBehaviour , IWarmUp
 [Serializable]
 public class WarmUpContainer
 {
-	int [] warmUpCollection = new int[]{ 5, 7, 8, 7 };
+	private int [] warmUpCollection = null;
 
 	private IPianoKeyController[] pianoKeys = null;
 	private int index = 0;
 	private IWarmUp warmUp = null;
 
 	private IPianoKeyController currentPianoKey = null;
+	private Lesson currentLesson = null;
 
 	public WarmUpContainer(IWarmUp warmUp)
 	{
 		this.warmUp = warmUp;
-		this.pianoKeys = GetAllPianoKeyController(this.warmUp.KeyList);
+		this.pianoKeys = GetAllPianoKeyController(this.warmUp.Keyboard);
 
 		foreach(IPianoKeyController pkc in this.pianoKeys)
 		{
 			pkc.RaiseKeyDown += IPianoKeyController_RaiseKeyDown;
 		}
 
+		this.currentLesson = Save.DeserializeFromPlayerPrefs<Lesson> (ConstString.CurrentData);
+		this.warmUpCollection = this.currentLesson.warmup.keylist;
 		int temp = GetInitialIndex();
 		this.currentPianoKey = this.pianoKeys[temp];
 	}
