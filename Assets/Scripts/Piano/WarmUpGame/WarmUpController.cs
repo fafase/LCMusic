@@ -35,11 +35,8 @@ public class WarmUpController : MonoBehaviour , IWarmUp
 
 	public void SetNewKey(IPianoKeyController previous, IPianoKeyController next)
 	{
-		Debug.Log("Setting");
 		previous.PianoKeyImage.color = previous.OriginalColor;
-		Debug.Log(previous.PianoKeyImage.color);
 		next.PianoKeyImage.color = onColor;
-		Debug.Log(next.PianoKeyImage.color);
 	}
 }
 
@@ -82,7 +79,6 @@ public class WarmUpContainer
 		IPianoKeyController pkc = e.pianoKeyCtrl;
 		if(pkc == this.currentPianoKey)
 		{
-			Debug.Log("Correct");
 			IPianoKeyController previous = this.currentPianoKey;
 			int temp = GetKeyIndex();
 			this.currentPianoKey = this.pianoKeys[temp];

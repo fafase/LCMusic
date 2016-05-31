@@ -44,6 +44,7 @@ public class PianoKeyController : MonoBehaviour, IPointerEnterHandler, IPointerE
 
 	private Image pianoKeyImage = null;
 	public Image PianoKeyImage { get { return this.pianoKeyImage; } }
+	private bool isKeyDown = false;
 
     private void Awake()
     {
@@ -53,18 +54,20 @@ public class PianoKeyController : MonoBehaviour, IPointerEnterHandler, IPointerE
 		this.currentButton = this.gameObject.GetComponent<Button>();
 		this.pianoKeyImage = this.gameObject.GetComponent<Image>();
 		this.originalColor = this.pianoKeyImage.color;
-		Debug.Log(this.originalColor);
 
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+		if(this.isKeyDown == true){ return; }
+		this.isKeyDown = true;
         this.pianoKey.PlayPianoKey();
 		OnKeyDown(new KeyDownEventArg(this as IPianoKeyController, this.currentButton));
     }
 
 	public void OnPointerExit (PointerEventData eventData)
 	{
+		this.isKeyDown = false;
 		this.pianoKey.StopPianoKey();
 	}
 
@@ -79,8 +82,10 @@ public class PianoKeyController : MonoBehaviour, IPointerEnterHandler, IPointerE
 	{
 		this.audioSource.Stop();
 	}
+
 	public event EventHandler<KeyDownEventArg> RaiseKeyDown;
-	protected void OnKeyDown(KeyDownEventArg arg){
+	protected void OnKeyDown(KeyDownEventArg arg)
+	{
 		if(RaiseKeyDown != null)
 		{
 			RaiseKeyDown(this, arg);
