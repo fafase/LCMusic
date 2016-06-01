@@ -3,9 +3,11 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using LCHelper;
+using UnityEngine.UI;
 
 public class DownloadController : MonoBehaviour
 {
+	
     private const string serverUrl = "https://raw.githubusercontent.com/fafase/unity-utilities/master/Scripts/lcdata.json";
     public event EventHandler<DownloadCompleteArgs> RaiseDownloadComplete;
     protected void OnDownloadComplete(DownloadCompleteArgs arg)
@@ -30,18 +32,18 @@ public class DownloadController : MonoBehaviour
             OnDownloadComplete(new DownloadCompleteArgs(null));
             yield break;
         }
-
         if (string.IsNullOrEmpty(www.text) == false)
         {
             System.IO.File.WriteAllText(ConstString.DataPath, www.text);
             PlayerPrefs.SetString(ConstString.JsonData, www.text);
 			Debug.Log (www.text);
         }
-        yield return null;
+		yield return new WaitForSeconds(2f);
         OnDownloadComplete(new DownloadCompleteArgs(www.text));
-        yield return null;
         www.Dispose();
     }
+
+
 }
 
 public class DownloadCompleteArgs : EventArgs
