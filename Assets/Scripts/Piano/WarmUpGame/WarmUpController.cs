@@ -31,7 +31,10 @@ public class WarmUpController : MonoBehaviour , IWarmUp
 	}
 	private void OnDestroy()
 	{
-		this.warmUp.Clean();
+		if(this.warmUp != null)
+		{
+			this.warmUp.Clean();
+		}
 	}
 
 	public void SetNewKey(IPianoKeyController previous, IPianoKeyController next)
@@ -44,7 +47,7 @@ public class WarmUpController : MonoBehaviour , IWarmUp
 [Serializable]
 public class WarmUpContainer
 {
-	private int [] warmUpCollection = null;
+	private Note [] warmUpCollection = null;
 
 	private IPianoKeyController[] pianoKeys = null;
 	private int index = 0;
@@ -64,7 +67,7 @@ public class WarmUpContainer
 		}
 
 		this.currentLesson = Save.DeserializeFromPlayerPrefs<Lesson> (ConstString.CurrentData);
-		this.warmUpCollection = this.currentLesson.warmup.keylist;
+		this.warmUpCollection = this.currentLesson.warmup.note;
 		int temp = GetInitialIndex();
 		this.currentPianoKey = this.pianoKeys[temp];
 	}
@@ -90,11 +93,11 @@ public class WarmUpContainer
 		}
 	}
 
-	public int GetInitialIndex(){ return this.warmUpCollection[0]; }  
+	public int GetInitialIndex(){ return this.warmUpCollection[0].key; }  
 	public int GetKeyIndex()
 	{
 		if(++this.index >= this.warmUpCollection.Length){ this.index = 0; }
-		return this.warmUpCollection[this.index];
+		return this.warmUpCollection[this.index].key;
 	}
 
 	public IPianoKeyController[] GetAllPianoKeyController(IEnumerable<MonoBehaviour> btns)

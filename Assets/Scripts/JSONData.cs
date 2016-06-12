@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 [Serializable]
 public class RootObject : IDisposable
@@ -89,11 +90,38 @@ public class Beat
 [Serializable]
 public class Warmup
 {
-	public int [] keylist = null;
+	public Note [] note = null;
 
 	public void Clean()
 	{
-		this.keylist = null;
+		foreach(Note n in note)
+		{
+			n.Clean();
+		}
+		this.note = null;
+	}
+}
+
+[Serializable]
+public class Note
+{
+	public int key;
+	public float length;
+	public string color = null;
+
+	public Color KeyColor 
+	{ 
+		get
+		{ 
+			Color color = new Color(1,0,0,1);
+			return color;
+		} 
+	}
+	
+	public Note(){}
+	public void Clean()
+	{
+		this.color = null;
 	}
 }
 
