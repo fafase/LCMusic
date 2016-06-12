@@ -113,7 +113,18 @@ public class Note
 	{ 
 		get
 		{ 
+			string[] strings = this.color.Split(","[0] );
 			Color color = new Color(1,0,0,1);
+			for (int i = 0; i < strings.Length; i++) 
+			{
+				try
+				{
+					color[i] = System.Single.Parse(strings[i]);
+				}catch(Exception)
+				{
+					color[i] = 1f;
+				}
+			}
 			return color;
 		} 
 	}
